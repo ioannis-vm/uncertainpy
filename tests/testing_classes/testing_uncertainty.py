@@ -2,18 +2,20 @@ from uncertainpy.core import UncertaintyCalculations
 from uncertainpy.core import UncertaintyCalculations
 from uncertainpy.data import Data
 
-class TestingUncertaintyCalculations(UncertaintyCalculations):
-    def polynomial_chaos(self,
-                         uncertain_parameters=None,
-                         method="collocation",
-                         rosenblatt=False,
-                         polynomial_order=4,
-                         nr_collocation_nodes=None,
-                         quadrature_order=4,
-                         nr_pc_mc_samples=10**4,
-                         allow_incomplete=False,
-                         seed=None):
 
+class TestingUncertaintyCalculations(UncertaintyCalculations):
+    def polynomial_chaos(
+        self,
+        uncertain_parameters=None,
+        method="collocation",
+        rosenblatt=False,
+        polynomial_order=4,
+        nr_collocation_nodes=None,
+        quadrature_order=4,
+        nr_pc_mc_samples=10**4,
+        allow_incomplete=False,
+        seed=None,
+    ):
         arguments = {}
 
         arguments["function"] = "PC"
@@ -27,17 +29,12 @@ class TestingUncertaintyCalculations(UncertaintyCalculations):
         arguments["seed"] = seed
         arguments["allow_incomplete"] = allow_incomplete
 
-
         data = Data(logger_level=None)
         data.arguments = arguments
 
         return data
 
-
-    def monte_carlo(self,
-                    uncertain_parameters=None,
-                    nr_samples=10**3,
-                    seed=None):
+    def monte_carlo(self, uncertain_parameters=None, nr_samples=10**3, seed=None):
         arguments = {}
 
         arguments["function"] = "MC"
@@ -49,8 +46,6 @@ class TestingUncertaintyCalculations(UncertaintyCalculations):
         data.arguments = arguments
 
         return data
-
-
 
     def custom_uncertainty_quantification(self, custom_keyword="custom_value"):
         arguments = {}

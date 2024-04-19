@@ -135,18 +135,20 @@ class NetworkFeatures(GeneralNetworkFeatures):
     --------
     uncertainpy.features.Features.reference_feature : reference_feature showing the requirements of a feature function.
     """
-    def __init__(self,
-                 new_features=None,
-                 features_to_run="all",
-                 interpolate=None,
-                 labels={},
-                 units=None,
-                 instantaneous_rate_nr_samples=50,
-                 isi_bin_size=1,
-                 corrcoef_bin_size=1,
-                 covariance_bin_size=1,
-                 logger_level="info"):
 
+    def __init__(
+        self,
+        new_features=None,
+        features_to_run="all",
+        interpolate=None,
+        labels={},
+        units=None,
+        instantaneous_rate_nr_samples=50,
+        isi_bin_size=1,
+        corrcoef_bin_size=1,
+        covariance_bin_size=1,
+        logger_level="info",
+    ):
         if not prerequisites:
             raise ImportError("Network features require: elephant and quantities")
 
@@ -155,35 +157,40 @@ class NetworkFeatures(GeneralNetworkFeatures):
 
         unit_string = str(units).split()[1]
 
-        implemented_labels = {"cv": ["Neuron nr", "Coefficient of variation"],
-                              "average_cv": ["Average coefficient of variation"],
-                              "average_isi": ["Average interspike interval ({})".format(unit_string)],
-                              "local_variation": ["Neuron nr", "Local variation"],
-                              "average_local_variation": ["Mean local variation"],
-                              "average_firing_rate": ["Neuron nr", "Rate (Hz)"],
-                              "instantaneous_rate": ["Time (ms)", "Neuron nr", "Rate (Hz)"],
-                              "fanofactor": ["Fanofactor"],
-                              "van_rossum_dist": ["Neuron nr", "Neuron nr", ""],
-                              "victor_purpura_dist": ["Neuron nr", "Neuron nr", ""],
-                              "binned_isi": ["Interspike interval ({})".format(unit_string),
-                                             "Neuron nr", "Count"],
-                              "corrcoef": ["Neuron nr", "Neuron nr", "Correlation coefficient"],
-                              "covariance": ["Neuron nr", "Neuron nr", "Covariance"]
-                             }
+        implemented_labels = {
+            "cv": ["Neuron nr", "Coefficient of variation"],
+            "average_cv": ["Average coefficient of variation"],
+            "average_isi": ["Average interspike interval ({})".format(unit_string)],
+            "local_variation": ["Neuron nr", "Local variation"],
+            "average_local_variation": ["Mean local variation"],
+            "average_firing_rate": ["Neuron nr", "Rate (Hz)"],
+            "instantaneous_rate": ["Time (ms)", "Neuron nr", "Rate (Hz)"],
+            "fanofactor": ["Fanofactor"],
+            "van_rossum_dist": ["Neuron nr", "Neuron nr", ""],
+            "victor_purpura_dist": ["Neuron nr", "Neuron nr", ""],
+            "binned_isi": [
+                "Interspike interval ({})".format(unit_string),
+                "Neuron nr",
+                "Count",
+            ],
+            "corrcoef": ["Neuron nr", "Neuron nr", "Correlation coefficient"],
+            "covariance": ["Neuron nr", "Neuron nr", "Covariance"],
+        }
 
         implemented_labels.update(labels)
 
-        super(NetworkFeatures, self).__init__(new_features=new_features,
-                                              features_to_run=features_to_run,
-                                              interpolate=interpolate,
-                                              labels=implemented_labels,
-                                              units=units)
+        super(NetworkFeatures, self).__init__(
+            new_features=new_features,
+            features_to_run=features_to_run,
+            interpolate=interpolate,
+            labels=implemented_labels,
+            units=units,
+        )
 
         self.instantaneous_rate_nr_samples = instantaneous_rate_nr_samples
         self.isi_bin_size = isi_bin_size
         self.corrcoef_bin_size = corrcoef_bin_size
         self.covariance_bin_size = covariance_bin_size
-
 
     def cv(self, simulation_end, spiketrains):
         """
@@ -211,7 +218,6 @@ class NetworkFeatures(GeneralNetworkFeatures):
 
         return None, np.array(cv)
 
-
     def average_cv(self, simulation_end, spiketrains):
         """
         Calculate the average coefficient of variation.
@@ -238,8 +244,6 @@ class NetworkFeatures(GeneralNetworkFeatures):
 
         return None, np.mean(cv)
 
-
-
     def binned_isi(self, simulation_end, spiketrains):
         """
         Calculate a histogram of the interspike interval.
@@ -262,7 +266,9 @@ class NetworkFeatures(GeneralNetworkFeatures):
             return None, None
 
         binned_isi = []
-        bins = np.arange(0, spiketrains[0].t_stop.magnitude + self.isi_bin_size, self.isi_bin_size)
+        bins = np.arange(
+            0, spiketrains[0].t_stop.magnitude + self.isi_bin_size, self.isi_bin_size
+        )
 
         for spiketrain in spiketrains:
             if len(spiketrain) > 1:
@@ -274,7 +280,6 @@ class NetworkFeatures(GeneralNetworkFeatures):
 
         centers = bins[1:] - 0.5
         return centers, binned_isi
-
 
     def average_isi(self, simulation_end, spiketrains):
         """
@@ -302,7 +307,6 @@ class NetworkFeatures(GeneralNetworkFeatures):
                 isi.append(np.mean(elephant.statistics.isi(spiketrain)))
 
         return None, np.mean(isi)
-
 
     def local_variation(self, simulation_end, spiketrains):
         """
@@ -334,8 +338,6 @@ class NetworkFeatures(GeneralNetworkFeatures):
 
         return None, local_variation
 
-
-
     def average_local_variation(self, simulation_end, spiketrains):
         """
         Calculate the average of the local variation.
@@ -363,7 +365,6 @@ class NetworkFeatures(GeneralNetworkFeatures):
                 local_variation.append(elephant.statistics.lv(isi))
 
         return None, np.mean(local_variation)
-
 
     def average_firing_rate(self, simulation_end, spiketrains):
         """
@@ -394,7 +395,6 @@ class NetworkFeatures(GeneralNetworkFeatures):
 
         return None, average_firing_rates
 
-
     def instantaneous_rate(self, simulation_end, spiketrains):
         """
         Calculate the mean instantaneous firing rate.
@@ -420,11 +420,17 @@ class NetworkFeatures(GeneralNetworkFeatures):
         t = None
         for spiketrain in spiketrains:
             if len(spiketrain) > 2:
-                sampling_period = spiketrain.t_stop/self.instantaneous_rate_nr_samples
+                sampling_period = (
+                    spiketrain.t_stop / self.instantaneous_rate_nr_samples
+                )
                 # try/except to solve problem with elephant
                 try:
-                    instantaneous_rate = elephant.statistics.instantaneous_rate(spiketrain, sampling_period)
-                    instantaneous_rates.append(np.array(instantaneous_rate).flatten())
+                    instantaneous_rate = elephant.statistics.instantaneous_rate(
+                        spiketrain, sampling_period
+                    )
+                    instantaneous_rates.append(
+                        np.array(instantaneous_rate).flatten()
+                    )
 
                     if t is None:
                         t = instantaneous_rate.times.copy()
@@ -439,7 +445,6 @@ class NetworkFeatures(GeneralNetworkFeatures):
             return None, instantaneous_rates
         else:
             return t.magnitude, instantaneous_rates
-
 
     def fanofactor(self, simulation_end, spiketrains):
         """
@@ -461,9 +466,7 @@ class NetworkFeatures(GeneralNetworkFeatures):
         if len(spiketrains) == 0:
             return None, None
 
-
         return None, elephant.statistics.fanofactor(spiketrains)
-
 
     def van_rossum_dist(self, simulation_end, spiketrains):
         """
@@ -485,7 +488,9 @@ class NetworkFeatures(GeneralNetworkFeatures):
         if len(spiketrains) == 0:
             return None, None
 
-        van_rossum_dist = elephant.spike_train_dissimilarity.van_rossum_dist(spiketrains)
+        van_rossum_dist = elephant.spike_train_dissimilarity.van_rossum_dist(
+            spiketrains
+        )
 
         # van_rossum_dist returns 0.j imaginary parts in some cases
         van_rossum_dist = np.real_if_close(van_rossum_dist)
@@ -514,11 +519,11 @@ class NetworkFeatures(GeneralNetworkFeatures):
         if len(spiketrains) == 0:
             return None, None
 
-
-        victor_purpura_dist = elephant.spike_train_dissimilarity.victor_purpura_dist(spiketrains)
+        victor_purpura_dist = elephant.spike_train_dissimilarity.victor_purpura_dist(
+            spiketrains
+        )
 
         return None, victor_purpura_dist
-
 
     def corrcoef(self, simulation_end, spiketrains):
         """
@@ -540,9 +545,9 @@ class NetworkFeatures(GeneralNetworkFeatures):
         if len(spiketrains) == 0:
             return None, None
 
-
-        binned_sts = elephant.conversion.BinnedSpikeTrain(spiketrains,
-                                                          binsize=self.corrcoef_bin_size*self.units)
+        binned_sts = elephant.conversion.BinnedSpikeTrain(
+            spiketrains, binsize=self.corrcoef_bin_size * self.units
+        )
         corrcoef = elephant.spike_train_correlation.corrcoef(binned_sts)
 
         return None, corrcoef
@@ -567,8 +572,9 @@ class NetworkFeatures(GeneralNetworkFeatures):
         if len(spiketrains) == 0:
             return None, None
 
-        binned_sts = elephant.conversion.BinnedSpikeTrain(spiketrains,
-                                                          binsize=self.covariance_bin_size*self.units)
+        binned_sts = elephant.conversion.BinnedSpikeTrain(
+            spiketrains, binsize=self.covariance_bin_size * self.units
+        )
         covariance = elephant.spike_train_correlation.covariance(binned_sts)
 
         return None, covariance

@@ -11,6 +11,7 @@ import chaospy as cp
 
 __all__ = ["Parameters", "Parameter"]
 
+
 class Parameter(object):
     """
     Parameter object, contains name of parameter, value of parameter and distribution of parameter.
@@ -47,7 +48,6 @@ class Parameter(object):
 
         self.distribution = distribution
 
-
     @property
     def distribution(self):
         """
@@ -78,15 +78,19 @@ class Parameter(object):
             self._distribution = new_distribution
         elif hasattr(new_distribution, '__call__'):
             if self.value is None:
-                raise ValueError("The value of this parameter is None. A function cannot be created with new_distribution(self.value).")
+                raise ValueError(
+                    "The value of this parameter is None. A function cannot be created with new_distribution(self.value)."
+                )
 
             self._distribution = new_distribution(self.value)
             if not isinstance(self._distribution, cp.Distribution):
-                raise TypeError("Function new_distribution does not return a Chaospy distribution")
+                raise TypeError(
+                    "Function new_distribution does not return a Chaospy distribution"
+                )
         else:
-            raise TypeError("new_distribution is neither a function nor a Chaospy distribution")
-
-
+            raise TypeError(
+                "new_distribution is neither a function nor a Chaospy distribution"
+            )
 
     def set_parameter_file(self, filename, value):
         """
@@ -102,12 +106,15 @@ class Parameter(object):
         value: float, int
             New value to set in parameter file.
         """
-        search_string = r"(\A|\b)(" + self.name + r")(\s*=\s*)((([+-]?\d+[.]?\d*)|([+-]?\d*[.]?\d+))([eE][+-]?\d+)*)($|\b)"
+        search_string = (
+            r"(\A|\b)("
+            + self.name
+            + r")(\s*=\s*)((([+-]?\d+[.]?\d*)|([+-]?\d*[.]?\d+))([eE][+-]?\d+)*)($|\b)"
+        )
         pattern = re.compile(search_string)
 
         for line in fileinput.input(filename, inplace=True):
             sys.stdout.write(pattern.sub(r"\g<1>\g<2>\g<3>" + str(value), line))
-
 
     def reset_parameter_file(self, filename):
         """
@@ -119,11 +126,11 @@ class Parameter(object):
             Name of file.
         """
         if self.value is None:
-            raise ValueError("The value of this parameter is None. The parameter file cannot be reset.")
-
+            raise ValueError(
+                "The value of this parameter is None. The parameter file cannot be reset."
+            )
 
         self.set_parameter_file(filename, self.value)
-
 
     def __str__(self):
         """
@@ -139,10 +146,9 @@ class Parameter(object):
         else:
             uncertain = " - Uncertain"
 
-        return "{parameter}: {value}{uncertain}".format(parameter=self.name, value=self.value, uncertain=uncertain)
-
-
-
+        return "{parameter}: {value}{uncertain}".format(
+            parameter=self.name, value=self.value, uncertain=uncertain
+        )
 
 
 class Parameters(collections.MutableMapping):
@@ -188,11 +194,10 @@ class Parameters(collections.MutableMapping):
     --------
     uncertainpy.Parameter
     """
-    def __init__(self, parameters={}, distribution=None):
 
+    def __init__(self, parameters={}, distribution=None):
         self.parameters = collections.OrderedDict()
         self.distribution = distribution
-
 
         try:
             # Handle dict
@@ -202,9 +207,13 @@ class Parameters(collections.MutableMapping):
                         self.parameters[parameter] = parameters[parameter]
                     else:
                         if isinstance(parameters[parameter], cp.Distribution):
-                            self.parameters[parameter] = Parameter(parameter, distribution=parameters[parameter])
+                            self.parameters[parameter] = Parameter(
+                                parameter, distribution=parameters[parameter]
+                            )
                         else:
-                                self.parameters[parameter] = Parameter(parameter, value=parameters[parameter])
+                            self.parameters[parameter] = Parameter(
+                                parameter, value=parameters[parameter]
+                            )
 
             else:
                 # Handle lists
@@ -214,9 +223,13 @@ class Parameters(collections.MutableMapping):
                     else:
                         if len(parameter) == 2:
                             if isinstance(parameter[1], cp.Distribution):
-                                self.parameters[parameter[0]] = Parameter(parameter[0], distribution=parameter[1])
+                                self.parameters[parameter[0]] = Parameter(
+                                    parameter[0], distribution=parameter[1]
+                                )
                             else:
-                                self.parameters[parameter[0]] = Parameter(parameter[0], value=parameter[1])
+                                self.parameters[parameter[0]] = Parameter(
+                                    parameter[0], value=parameter[1]
+                                )
                         else:
                             self.parameters[parameter[0]] = Parameter(*parameter)
         except TypeError as error:
@@ -225,7 +238,6 @@ class Parameters(collections.MutableMapping):
                 error.args = ("",)
             error.args = error.args + (msg,)
             raise
-
 
     def __getitem__(self, name):
         """
@@ -242,7 +254,6 @@ class Parameters(collections.MutableMapping):
             The parameter object with `name`.
         """
         return self.parameters[name]
-
 
     def __iter__(self):
         """
@@ -271,7 +282,6 @@ class Parameters(collections.MutableMapping):
 
         return result.strip()
 
-
     def __len__(self):
         """
         Get the number of parameters.
@@ -282,7 +292,6 @@ class Parameters(collections.MutableMapping):
             The number of parameters.
         """
         return len(self.parameters)
-
 
     def __setitem__(self, name, parameter):
         """
@@ -300,7 +309,6 @@ class Parameters(collections.MutableMapping):
             raise ValueError("parameter must be an instance of Parameter")
         self.parameters[name] = parameter
 
-
     def __delitem__(self, name):
         """
         Delete parameter with `name`.
@@ -312,7 +320,6 @@ class Parameters(collections.MutableMapping):
         """
 
         del self.parameters[name]
-
 
     def set_distribution(self, parameter, distribution):
         """
@@ -327,7 +334,6 @@ class Parameters(collections.MutableMapping):
         """
         self.parameters[parameter].distribution = distribution
 
-
     def set_all_distributions(self, distribution):
         """
         Set the distribution of all parameters.
@@ -339,7 +345,6 @@ class Parameters(collections.MutableMapping):
         """
         for parameter in self.parameters:
             self.parameters[parameter].distribution = distribution
-
 
     def get_from_uncertain(self, attribute="name"):
         """
@@ -366,7 +371,6 @@ class Parameters(collections.MutableMapping):
                 items.append(getattr(parameter, attribute))
 
         return items
-
 
     def get(self, attribute="name", parameter_names=None):
         """
@@ -403,7 +407,6 @@ class Parameters(collections.MutableMapping):
 
         return [getattr(parameter, attribute) for parameter in return_parameters]
 
-
     def set_parameters_file(self, filename, parameters):
         """
         Set listed parameters to their value in a parameter file.
@@ -419,8 +422,9 @@ class Parameters(collections.MutableMapping):
             List of parameter names.
         """
         for parameter in parameters:
-            self.parameters[parameter].set_parameter_file(filename, parameters[parameter])
-
+            self.parameters[parameter].set_parameter_file(
+                filename, parameters[parameter]
+            )
 
     def reset_parameter_file(self, filename):
         """
@@ -435,4 +439,6 @@ class Parameters(collections.MutableMapping):
             Name of file.
         """
         for parameter in self.parameters:
-            self.parameters[parameter].set_parameter_file(filename, self.parameters[parameter].value)
+            self.parameters[parameter].set_parameter_file(
+                filename, self.parameters[parameter].value
+            )

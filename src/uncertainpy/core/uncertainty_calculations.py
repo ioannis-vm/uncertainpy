@@ -90,34 +90,39 @@ class UncertaintyCalculations(ParameterBase):
     uncertainpy.core.RunModel
     uncertainpy.models.Model.run : Requirements for the model run function.
     """
-    def __init__(self,
-                 model=None,
-                 parameters=None,
-                 features=None,
-                 create_PCE_custom=None,
-                 custom_uncertainty_quantification=None,
-                 CPUs="max",
-                 logger_level="info"):
 
-
-        self.runmodel = RunModel(model=model,
-                                 parameters=parameters,
-                                 features=features,
-                                 logger_level=logger_level,
-                                 CPUs=CPUs)
-
+    def __init__(
+        self,
+        model=None,
+        parameters=None,
+        features=None,
+        create_PCE_custom=None,
+        custom_uncertainty_quantification=None,
+        CPUs="max",
+        logger_level="info",
+    ):
+        self.runmodel = RunModel(
+            model=model,
+            parameters=parameters,
+            features=features,
+            logger_level=logger_level,
+            CPUs=CPUs,
+        )
 
         if create_PCE_custom is not None:
             self.create_PCE_custom = create_PCE_custom
 
         if custom_uncertainty_quantification is not None:
-            self.custom_uncertainty_quantification = custom_uncertainty_quantification
+            self.custom_uncertainty_quantification = (
+                custom_uncertainty_quantification
+            )
 
-        super(UncertaintyCalculations, self).__init__(parameters=parameters,
-                                                      model=model,
-                                                      features=features,
-                                                      logger_level=logger_level)
-
+        super(UncertaintyCalculations, self).__init__(
+            parameters=parameters,
+            model=model,
+            features=features,
+            logger_level=logger_level,
+        )
 
     @ParameterBase.features.setter
     def features(self, new_features):
@@ -125,22 +130,17 @@ class UncertaintyCalculations(ParameterBase):
 
         self.runmodel.features = self.features
 
-
     @ParameterBase.model.setter
     def model(self, new_model):
         ParameterBase.model.fset(self, new_model)
 
         self.runmodel.model = self.model
 
-
     @ParameterBase.parameters.setter
     def parameters(self, new_parameters):
         ParameterBase.parameters.fset(self, new_parameters)
 
         self.runmodel.parameters = self.parameters
-
-
-
 
     def convert_uncertain_parameters(self, uncertain_parameters=None):
         """
@@ -180,13 +180,14 @@ class UncertaintyCalculations(ParameterBase):
             if uncertain_parameters is None:
                 uncertain_parameters = self.parameters.get("name")
             elif sorted(uncertain_parameters) != sorted(self.parameters.get("name")):
-                 raise ValueError("A common multivariate distribution is given, " +
-                                  "and all uncertain parameters must be used. " +
-                                  "Set uncertain_parameters to None or a list of all " +
-                                  "uncertain parameters.")
+                raise ValueError(
+                    "A common multivariate distribution is given, "
+                    + "and all uncertain parameters must be used. "
+                    + "Set uncertain_parameters to None or a list of all "
+                    + "uncertain parameters."
+                )
 
         return uncertain_parameters
-
 
     def create_distribution(self, uncertain_parameters=None):
         """
@@ -223,17 +224,20 @@ class UncertaintyCalculations(ParameterBase):
         --------
         uncertainpy.Parameters
         """
-        uncertain_parameters = self.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = self.convert_uncertain_parameters(
+            uncertain_parameters
+        )
 
         if self.parameters.distribution is None:
-            parameter_distributions = self.parameters.get("distribution", uncertain_parameters)
+            parameter_distributions = self.parameters.get(
+                "distribution", uncertain_parameters
+            )
 
             distribution = cp.J(*parameter_distributions)
         else:
             distribution = self.parameters.distribution
 
         return distribution
-
 
     def dependent(self, distribution):
         """
@@ -252,7 +256,6 @@ class UncertaintyCalculations(ParameterBase):
         # New property added in Chaospy, so the dependent method is
         # kept for legacy
         return distribution.stochastic_dependent
-
 
     def create_mask(self, evaluations):
         """
@@ -282,7 +285,6 @@ class UncertaintyCalculations(ParameterBase):
 
         return masked_evaluations, mask
 
-
     def create_masked_evaluations(self, data, feature):
         """
         Mask all model and feature evaluations that do not give results
@@ -310,14 +312,13 @@ class UncertaintyCalculations(ParameterBase):
 
         if not np.all(mask):
             logger = get_logger(self)
-            logger.warning("{}: only yields ".format(feature) +
-                           "results for {}/{} ".format(sum(mask), len(mask)) +
-                           "parameter combinations.")
-
+            logger.warning(
+                "{}: only yields ".format(feature)
+                + "results for {}/{} ".format(sum(mask), len(mask))
+                + "parameter combinations."
+            )
 
         return masked_evaluations, mask
-
-
 
     def create_masked_nodes(self, data, feature, nodes):
         """
@@ -352,8 +353,6 @@ class UncertaintyCalculations(ParameterBase):
 
         return masked_evaluations, mask, masked_nodes
 
-
-
     def create_masked_nodes_weights(self, data, feature, nodes, weights):
         """
         Mask all model and feature evaluations that do not give results
@@ -382,7 +381,9 @@ class UncertaintyCalculations(ParameterBase):
         masked_weights : array_like
             Masked weights that correspond to evaluations with results.
         """
-        masked_evaluations, mask, masked_nodes = self.create_masked_nodes(data, feature, nodes)
+        masked_evaluations, mask, masked_nodes = self.create_masked_nodes(
+            data, feature, nodes
+        )
 
         if len(weights.shape) > 1:
             masked_weights = weights[:, mask]
@@ -391,15 +392,13 @@ class UncertaintyCalculations(ParameterBase):
 
         return masked_evaluations, mask, masked_nodes, masked_weights
 
-
-
-
-
-    def create_PCE_spectral(self,
-                            uncertain_parameters=None,
-                            polynomial_order=4,
-                            quadrature_order=None,
-                            allow_incomplete=True):
+    def create_PCE_spectral(
+        self,
+        uncertain_parameters=None,
+        polynomial_order=4,
+        quadrature_order=None,
+        allow_incomplete=True,
+    ):
         """
         Create the polynomial approximation `U_hat` using pseudo-spectral
         projection.
@@ -478,62 +477,78 @@ class UncertaintyCalculations(ParameterBase):
         uncertainpy.Data
         uncertainpy.Parameters
         """
-        uncertain_parameters = self.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = self.convert_uncertain_parameters(
+            uncertain_parameters
+        )
 
-        distribution = self.create_distribution(uncertain_parameters=uncertain_parameters)
+        distribution = self.create_distribution(
+            uncertain_parameters=uncertain_parameters
+        )
 
         P = cp.orth_ttr(polynomial_order, distribution)
 
         if quadrature_order is None:
             quadrature_order = polynomial_order + 2
 
-
-        nodes, weights = cp.generate_quadrature(quadrature_order,
-                                                distribution,
-                                                rule="J",
-                                                sparse=True)
+        nodes, weights = cp.generate_quadrature(
+            quadrature_order, distribution, rule="J", sparse=True
+        )
 
         # Running the model
         data = self.runmodel.run(nodes, uncertain_parameters)
 
-
-        data.method = "polynomial chaos expansion with the pseudo-spectral method. polynomial_order={}, quadrature_order={}".format(polynomial_order, quadrature_order)
+        data.method = "polynomial chaos expansion with the pseudo-spectral method. polynomial_order={}, quadrature_order={}".format(
+            polynomial_order, quadrature_order
+        )
 
         logger = get_logger(self)
 
         U_hat = {}
         # Calculate PC for each feature
-        for feature in tqdm(data,
-                            desc="Calculating PC for each feature",
-                            total=len(data)):
+        for feature in tqdm(
+            data, desc="Calculating PC for each feature", total=len(data)
+        ):
             if feature == self.model.name and self.model.ignore:
                 continue
 
-            masked_evaluations, mask, masked_nodes, masked_weights = \
-                self.create_masked_nodes_weights(data, feature, nodes, weights)
-
+            (
+                masked_evaluations,
+                mask,
+                masked_nodes,
+                masked_weights,
+            ) = self.create_masked_nodes_weights(data, feature, nodes, weights)
 
             if (np.all(mask) or allow_incomplete) and sum(mask) > 0:
-                U_hat[feature] = cp.fit_quadrature(P, masked_nodes,
-                                                   masked_weights, masked_evaluations)
+                U_hat[feature] = cp.fit_quadrature(
+                    P, masked_nodes, masked_weights, masked_evaluations
+                )
             elif not allow_incomplete:
-                logger.warning("{}: not all parameter combinations give results.".format(feature) +
-                               " No uncertainty quantification is performed since allow_incomplete=False")
+                logger.warning(
+                    "{}: not all parameter combinations give results.".format(
+                        feature
+                    )
+                    + " No uncertainty quantification is performed since allow_incomplete=False"
+                )
 
             else:
-                logger.warning("{}: not all parameter combinations give results.".format(feature))
+                logger.warning(
+                    "{}: not all parameter combinations give results.".format(
+                        feature
+                    )
+                )
 
             if not np.all(mask):
                 data.incomplete.append(feature)
 
         return U_hat, distribution, data
 
-
-    def create_PCE_collocation(self,
-                               uncertain_parameters=None,
-                               polynomial_order=4,
-                               nr_collocation_nodes=None,
-                               allow_incomplete=True):
+    def create_PCE_collocation(
+        self,
+        uncertain_parameters=None,
+        polynomial_order=4,
+        nr_collocation_nodes=None,
+        allow_incomplete=True,
+    ):
         """
         Create the polynomial approximation `U_hat` using pseudo-spectral
         projection.
@@ -614,56 +629,72 @@ class UncertaintyCalculations(ParameterBase):
         uncertainpy.Parameters
         """
 
-        uncertain_parameters = self.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = self.convert_uncertain_parameters(
+            uncertain_parameters
+        )
 
-        distribution = self.create_distribution(uncertain_parameters=uncertain_parameters)
+        distribution = self.create_distribution(
+            uncertain_parameters=uncertain_parameters
+        )
 
         P = cp.orth_ttr(polynomial_order, distribution)
         if nr_collocation_nodes is None:
-            nr_collocation_nodes = 2*len(P) + 2
+            nr_collocation_nodes = 2 * len(P) + 2
 
         nodes = distribution.sample(nr_collocation_nodes, "M")
-
 
         # Running the model
         data = self.runmodel.run(nodes, uncertain_parameters)
 
-        data.method = "polynomial chaos expansion with point collocation. polynomial_order={}, nr_collocation_nodes={}".format(polynomial_order, nr_collocation_nodes)
+        data.method = "polynomial chaos expansion with point collocation. polynomial_order={}, nr_collocation_nodes={}".format(
+            polynomial_order, nr_collocation_nodes
+        )
 
         logger = get_logger(self)
 
         U_hat = {}
         # Calculate PC for each feature
-        for feature in tqdm(data,
-                            desc="Calculating PC for each feature",
-                            total=len(data)):
+        for feature in tqdm(
+            data, desc="Calculating PC for each feature", total=len(data)
+        ):
             if feature == self.model.name and self.model.ignore:
                 continue
 
-            masked_evaluations, mask, masked_nodes = self.create_masked_nodes(data, feature, nodes)
+            masked_evaluations, mask, masked_nodes = self.create_masked_nodes(
+                data, feature, nodes
+            )
 
             if (np.all(mask) or allow_incomplete) and sum(mask) > 0:
-                U_hat[feature] = cp.fit_regression(P, masked_nodes,
-                                                   masked_evaluations)
+                U_hat[feature] = cp.fit_regression(
+                    P, masked_nodes, masked_evaluations
+                )
             elif not allow_incomplete:
-                logger.warning("{}: not all parameter combinations give results.".format(feature) +
-                               " No uncertainty quantification is performed since allow_incomplete=False")
+                logger.warning(
+                    "{}: not all parameter combinations give results.".format(
+                        feature
+                    )
+                    + " No uncertainty quantification is performed since allow_incomplete=False"
+                )
 
             else:
-                logger.warning("{}: not all parameter combinations give results.".format(feature))
-
+                logger.warning(
+                    "{}: not all parameter combinations give results.".format(
+                        feature
+                    )
+                )
 
             if not np.all(mask):
                 data.incomplete.append(feature)
 
         return U_hat, distribution, data
 
-
-    def create_PCE_spectral_rosenblatt(self,
-                                       uncertain_parameters=None,
-                                       polynomial_order=4,
-                                       quadrature_order=None,
-                                       allow_incomplete=True):
+    def create_PCE_spectral_rosenblatt(
+        self,
+        uncertain_parameters=None,
+        polynomial_order=4,
+        quadrature_order=None,
+        allow_incomplete=True,
+    ):
         """
         Create the polynomial approximation `U_hat` using pseudo-spectral
         projection and the Rosenblatt transformation. Works for dependend
@@ -750,10 +781,13 @@ class UncertaintyCalculations(ParameterBase):
         uncertainpy.Parameters
         """
 
-        uncertain_parameters = self.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = self.convert_uncertain_parameters(
+            uncertain_parameters
+        )
 
-        distribution = self.create_distribution(uncertain_parameters=uncertain_parameters)
-
+        distribution = self.create_distribution(
+            uncertain_parameters=uncertain_parameters
+        )
 
         # Create the Multivariate normal distribution
         dist_R = []
@@ -767,11 +801,9 @@ class UncertaintyCalculations(ParameterBase):
         if quadrature_order is None:
             quadrature_order = polynomial_order + 2
 
-        nodes_R, weights_R = cp.generate_quadrature(quadrature_order,
-                                                    dist_R,
-                                                    rule="J",
-                                                    sparse=True)
-
+        nodes_R, weights_R = cp.generate_quadrature(
+            quadrature_order, dist_R, rule="J", sparse=True
+        )
 
         nodes = distribution.inv(dist_R.fwd(nodes_R))
         # weights = weights_R*distribution.pdf(nodes)/dist_R.pdf(nodes_R)
@@ -779,16 +811,17 @@ class UncertaintyCalculations(ParameterBase):
         # Running the model
         data = self.runmodel.run(nodes, uncertain_parameters)
 
-        data.method = "polynomial chaos expansion with the pseudo-spectral method and the Rosenblatt transformation. polynomial_order={}, quadrature_order={}".format(polynomial_order, quadrature_order)
+        data.method = "polynomial chaos expansion with the pseudo-spectral method and the Rosenblatt transformation. polynomial_order={}, quadrature_order={}".format(
+            polynomial_order, quadrature_order
+        )
 
         logger = get_logger(self)
 
         U_hat = {}
         # Calculate PC for each feature
-        for feature in tqdm(data,
-                            desc="Calculating PC for each feature",
-                            total=len(data)):
-
+        for feature in tqdm(
+            data, desc="Calculating PC for each feature", total=len(data)
+        ):
             if feature == self.model.name and self.model.ignore:
                 continue
 
@@ -799,36 +832,44 @@ class UncertaintyCalculations(ParameterBase):
             #                                                           weights)
 
             # The version thats seems to be working
-            masked_evaluations, mask, masked_nodes, masked_weights = \
-                self.create_masked_nodes_weights(data,
-                                                 feature,
-                                                 nodes_R,
-                                                 weights_R)
+            (
+                masked_evaluations,
+                mask,
+                masked_nodes,
+                masked_weights,
+            ) = self.create_masked_nodes_weights(data, feature, nodes_R, weights_R)
 
             if (np.all(mask) or allow_incomplete) and sum(mask) > 0:
-                U_hat[feature] = cp.fit_quadrature(P,
-                                                   masked_nodes,
-                                                   masked_weights,
-                                                   masked_evaluations)
+                U_hat[feature] = cp.fit_quadrature(
+                    P, masked_nodes, masked_weights, masked_evaluations
+                )
             elif not allow_incomplete:
-                logger.warning("{}: not all parameter combinations give results.".format(feature) +
-                               " No uncertainty quantification is performed since allow_incomplete=False")
+                logger.warning(
+                    "{}: not all parameter combinations give results.".format(
+                        feature
+                    )
+                    + " No uncertainty quantification is performed since allow_incomplete=False"
+                )
 
             else:
-                logger.warning("{}: not all parameter combinations give results.".format(feature))
-
+                logger.warning(
+                    "{}: not all parameter combinations give results.".format(
+                        feature
+                    )
+                )
 
             if not np.all(mask):
                 data.incomplete.append(feature)
 
         return U_hat, dist_R, data
 
-
-    def create_PCE_collocation_rosenblatt(self,
-                                          uncertain_parameters=None,
-                                          polynomial_order=4,
-                                          nr_collocation_nodes=None,
-                                          allow_incomplete=True):
+    def create_PCE_collocation_rosenblatt(
+        self,
+        uncertain_parameters=None,
+        polynomial_order=4,
+        nr_collocation_nodes=None,
+        allow_incomplete=True,
+    ):
         """
         Create the polynomial approximation `U_hat` using pseudo-spectral
         projection and the Rosenblatt transformation. Works for dependend
@@ -911,10 +952,13 @@ class UncertaintyCalculations(ParameterBase):
         uncertainpy.Data
         uncertainpy.Parameters
         """
-        uncertain_parameters = self.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = self.convert_uncertain_parameters(
+            uncertain_parameters
+        )
 
-        distribution = self.create_distribution(uncertain_parameters=uncertain_parameters)
-
+        distribution = self.create_distribution(
+            uncertain_parameters=uncertain_parameters
+        )
 
         # Create the Multivariate normal distribution
         # dist_R = cp.Iid(cp.Normal(), len(uncertain_parameters))
@@ -927,7 +971,7 @@ class UncertaintyCalculations(ParameterBase):
         P = cp.orth_ttr(polynomial_order, dist_R)
 
         if nr_collocation_nodes is None:
-            nr_collocation_nodes = 2*len(P) + 2
+            nr_collocation_nodes = 2 * len(P) + 2
 
         nodes_R = dist_R.sample(nr_collocation_nodes, "M")
         nodes = distribution.inv(dist_R.fwd(nodes_R))
@@ -935,36 +979,47 @@ class UncertaintyCalculations(ParameterBase):
         # Running the model
         data = self.runmodel.run(nodes, uncertain_parameters)
 
-        data.method = "polynomial chaos expansion with point collocation and the Rosenblatt transformation. polynomial_order={}, nr_collocation_nodes={}".format(polynomial_order, nr_collocation_nodes)
+        data.method = "polynomial chaos expansion with point collocation and the Rosenblatt transformation. polynomial_order={}, nr_collocation_nodes={}".format(
+            polynomial_order, nr_collocation_nodes
+        )
 
         logger = get_logger(self)
 
         U_hat = {}
         # Calculate PC for each feature
-        for feature in tqdm(data,
-                            desc="Calculating PC for each feature",
-                            total=len(data)):
+        for feature in tqdm(
+            data, desc="Calculating PC for each feature", total=len(data)
+        ):
             if feature == self.model.name and self.model.ignore:
                 continue
 
-            masked_evaluations, mask, masked_nodes = self.create_masked_nodes(data, feature, nodes_R)
+            masked_evaluations, mask, masked_nodes = self.create_masked_nodes(
+                data, feature, nodes_R
+            )
 
             if (np.all(mask) or allow_incomplete) and sum(mask) > 0:
-                U_hat[feature] = cp.fit_regression(P,
-                                                   masked_nodes,
-                                                   masked_evaluations)
+                U_hat[feature] = cp.fit_regression(
+                    P, masked_nodes, masked_evaluations
+                )
             elif not allow_incomplete:
-                logger.warning("{}: not all parameter combinations give results.".format(feature) +
-                               " No uncertainty quantification is performed since allow_incomplete=False")
+                logger.warning(
+                    "{}: not all parameter combinations give results.".format(
+                        feature
+                    )
+                    + " No uncertainty quantification is performed since allow_incomplete=False"
+                )
 
             else:
-                logger.warning("{}: not all parameter combinations give results.".format(feature))
+                logger.warning(
+                    "{}: not all parameter combinations give results.".format(
+                        feature
+                    )
+                )
 
             if not np.all(mask):
                 data.incomplete.append(feature)
 
         return U_hat, dist_R, data
-
 
     def analyse_PCE(self, U_hat, distribution, data, nr_samples=10**4):
         """
@@ -1021,12 +1076,14 @@ class UncertaintyCalculations(ParameterBase):
 
         if len(data.uncertain_parameters) == 1:
             logger = get_logger(self)
-            logger.info("Only 1 uncertain parameter. Sensitivities are not calculated")
+            logger.info(
+                "Only 1 uncertain parameter. Sensitivities are not calculated"
+            )
 
         U_mc = {}
-        for feature in tqdm(data,
-                            desc="Calculating statistics from PCE",
-                            total=len(data)):
+        for feature in tqdm(
+            data, desc="Calculating statistics from PCE", total=len(data)
+        ):
             if feature in U_hat:
                 data[feature].mean = cp.E(U_hat[feature], distribution)
                 data[feature].variance = cp.Var(U_hat[feature], distribution)
@@ -1036,8 +1093,12 @@ class UncertaintyCalculations(ParameterBase):
                 if len(data.uncertain_parameters) > 1:
                     U_mc[feature] = U_hat[feature](*samples)
 
-                    data[feature].sobol_first = cp.Sens_m(U_hat[feature], distribution)
-                    data[feature].sobol_total = cp.Sens_t(U_hat[feature], distribution)
+                    data[feature].sobol_first = cp.Sens_m(
+                        U_hat[feature], distribution
+                    )
+                    data[feature].sobol_total = cp.Sens_t(
+                        U_hat[feature], distribution
+                    )
                     data = self.average_sensitivity(data, sensitivity="sobol_first")
                     data = self.average_sensitivity(data, sensitivity="sobol_total")
 
@@ -1048,8 +1109,6 @@ class UncertaintyCalculations(ParameterBase):
                 data[feature].percentile_95 = np.percentile(U_mc[feature], 95, -1)
 
         return data
-
-
 
     @property
     def create_PCE_custom(self, uncertain_parameters=None, **kwargs):
@@ -1128,10 +1187,10 @@ class UncertaintyCalculations(ParameterBase):
         self._create_PCE_custom = types.MethodType(new_create_PCE_custom, self)
         # self._create_PCE_custom = new_create_PCE_custom
 
-
     def _create_PCE_custom(self, uncertain_parameters=None, **kwargs):
-        raise NotImplementedError("No custom Polynomial Chaos expansion method implemented")
-
+        raise NotImplementedError(
+            "No custom Polynomial Chaos expansion method implemented"
+        )
 
     @property
     def custom_uncertainty_quantification(self, **kwargs):
@@ -1173,28 +1232,37 @@ class UncertaintyCalculations(ParameterBase):
         return self._custom_uncertainty_quantification
 
     @custom_uncertainty_quantification.setter
-    def custom_uncertainty_quantification(self, new_custom_uncertainty_quantification):
+    def custom_uncertainty_quantification(
+        self, new_custom_uncertainty_quantification
+    ):
         if not callable(new_custom_uncertainty_quantification):
-            raise TypeError("custom_uncertainty_quantification function must be callable")
+            raise TypeError(
+                "custom_uncertainty_quantification function must be callable"
+            )
 
-        self._custom_uncertainty_quantification = types.MethodType(new_custom_uncertainty_quantification, self)
+        self._custom_uncertainty_quantification = types.MethodType(
+            new_custom_uncertainty_quantification, self
+        )
         # self._custom_uncertainty_quantification = new_custom_uncertainty_quantification
 
     def _custom_uncertainty_quantification(self, **kwargs):
-        raise NotImplementedError("No custom uncertainty calculation method implemented")
+        raise NotImplementedError(
+            "No custom uncertainty calculation method implemented"
+        )
 
-
-    def polynomial_chaos(self,
-                         method="collocation",
-                         rosenblatt="auto",
-                         uncertain_parameters=None,
-                         polynomial_order=4,
-                         nr_collocation_nodes=None,
-                         quadrature_order=None,
-                         nr_pc_mc_samples=10**4,
-                         allow_incomplete=True,
-                         seed=None,
-                         **custom_kwargs):
+    def polynomial_chaos(
+        self,
+        method="collocation",
+        rosenblatt="auto",
+        uncertain_parameters=None,
+        polynomial_order=4,
+        nr_collocation_nodes=None,
+        quadrature_order=None,
+        nr_pc_mc_samples=10**4,
+        allow_incomplete=True,
+        seed=None,
+        **custom_kwargs
+    ):
         """
         Perform an uncertainty quantification and sensitivity analysis
         using polynomial chaos expansions.
@@ -1326,8 +1394,12 @@ class UncertaintyCalculations(ParameterBase):
         if seed is not None:
             np.random.seed(seed)
 
-        uncertain_parameters = self.convert_uncertain_parameters(uncertain_parameters)
-        distribution = self.create_distribution(uncertain_parameters=uncertain_parameters)
+        uncertain_parameters = self.convert_uncertain_parameters(
+            uncertain_parameters
+        )
+        distribution = self.create_distribution(
+            uncertain_parameters=uncertain_parameters
+        )
 
         if rosenblatt == "auto":
             if self.dependent(distribution):
@@ -1337,39 +1409,46 @@ class UncertaintyCalculations(ParameterBase):
 
         elif rosenblatt == False:
             if self.dependent(distribution):
-                raise ValueError('Dependent parameters require using the Rosenblatt transformation. Set rosenblatt="auto" or rosenblatt=True')
+                raise ValueError(
+                    'Dependent parameters require using the Rosenblatt transformation. Set rosenblatt="auto" or rosenblatt=True'
+                )
 
         if method == "collocation":
             if rosenblatt:
-                U_hat, distribution, data = \
-                    self.create_PCE_collocation_rosenblatt(uncertain_parameters=uncertain_parameters,
-                                                           polynomial_order=polynomial_order,
-                                                           nr_collocation_nodes=nr_collocation_nodes,
-                                                           allow_incomplete=allow_incomplete)
+                U_hat, distribution, data = self.create_PCE_collocation_rosenblatt(
+                    uncertain_parameters=uncertain_parameters,
+                    polynomial_order=polynomial_order,
+                    nr_collocation_nodes=nr_collocation_nodes,
+                    allow_incomplete=allow_incomplete,
+                )
             else:
-                U_hat, distribution, data = \
-                    self.create_PCE_collocation(uncertain_parameters=uncertain_parameters,
-                                                polynomial_order=polynomial_order,
-                                                nr_collocation_nodes=nr_collocation_nodes,
-                                                allow_incomplete=allow_incomplete)
+                U_hat, distribution, data = self.create_PCE_collocation(
+                    uncertain_parameters=uncertain_parameters,
+                    polynomial_order=polynomial_order,
+                    nr_collocation_nodes=nr_collocation_nodes,
+                    allow_incomplete=allow_incomplete,
+                )
 
         elif method == "spectral":
             if rosenblatt:
-                U_hat, distribution, data = \
-                    self.create_PCE_spectral_rosenblatt(uncertain_parameters=uncertain_parameters,
-                                                        polynomial_order=polynomial_order,
-                                                        quadrature_order=quadrature_order,
-                                                        allow_incomplete=allow_incomplete)
+                U_hat, distribution, data = self.create_PCE_spectral_rosenblatt(
+                    uncertain_parameters=uncertain_parameters,
+                    polynomial_order=polynomial_order,
+                    quadrature_order=quadrature_order,
+                    allow_incomplete=allow_incomplete,
+                )
             else:
-                U_hat, distribution, data = \
-                    self.create_PCE_spectral(uncertain_parameters=uncertain_parameters,
-                                             polynomial_order=polynomial_order,
-                                             quadrature_order=quadrature_order,
-                                             allow_incomplete=allow_incomplete)
+                U_hat, distribution, data = self.create_PCE_spectral(
+                    uncertain_parameters=uncertain_parameters,
+                    polynomial_order=polynomial_order,
+                    quadrature_order=quadrature_order,
+                    allow_incomplete=allow_incomplete,
+                )
 
         elif method == "custom":
-            U_hat, distribution, data = \
-                self.create_PCE_custom(uncertain_parameters, **custom_kwargs)
+            U_hat, distribution, data = self.create_PCE_custom(
+                uncertain_parameters, **custom_kwargs
+            )
 
         # TODO add support for more methods here by using
         # try:
@@ -1378,20 +1457,25 @@ class UncertaintyCalculations(ParameterBase):
         #     raise NotImplementedError("{} not implemented".format{method})
 
         else:
-            raise ValueError("No polynomial chaos method with name {}".format(method))
+            raise ValueError(
+                "No polynomial chaos method with name {}".format(method)
+            )
 
-        data = self.analyse_PCE(U_hat, distribution, data, nr_samples=nr_pc_mc_samples)
+        data = self.analyse_PCE(
+            U_hat, distribution, data, nr_samples=nr_pc_mc_samples
+        )
 
         data.seed = seed
 
         return data
 
-
-    def monte_carlo(self,
-                    uncertain_parameters=None,
-                    nr_samples=10**4,
-                    seed=None,
-                    allow_incomplete=True):
+    def monte_carlo(
+        self,
+        uncertain_parameters=None,
+        nr_samples=10**4,
+        seed=None,
+        allow_incomplete=True,
+    ):
         """
         Perform an uncertainty quantification using the quasi-Monte Carlo method.
 
@@ -1474,16 +1558,20 @@ class UncertaintyCalculations(ParameterBase):
         if seed is not None:
             np.random.seed(seed)
 
-        uncertain_parameters = self.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = self.convert_uncertain_parameters(
+            uncertain_parameters
+        )
 
-        distribution = self.create_distribution(uncertain_parameters=uncertain_parameters)
+        distribution = self.create_distribution(
+            uncertain_parameters=uncertain_parameters
+        )
 
         # nodes = distribution.sample(nr_samples, "M")
 
         problem = {
             "num_vars": len(uncertain_parameters),
             "names": uncertain_parameters,
-            "bounds": [[0,1]]*len(uncertain_parameters)
+            "bounds": [[0, 1]] * len(uncertain_parameters),
         }
 
         # Create the Multivariate normal distribution
@@ -1493,12 +1581,11 @@ class UncertaintyCalculations(ParameterBase):
 
         dist_R = cp.J(*dist_R)
 
-        nr_sobol_samples = int(np.round(nr_samples/2.))
+        nr_sobol_samples = int(np.round(nr_samples / 2.0))
 
         nodes_R = saltelli.sample(problem, nr_sobol_samples, calc_second_order=False)
 
         nodes = distribution.inv(dist_R.fwd(nodes_R.transpose()))
-
 
         data = self.runmodel.run(nodes, uncertain_parameters)
 
@@ -1511,9 +1598,11 @@ class UncertaintyCalculations(ParameterBase):
                 continue
 
             # Only use A to calculate the mean and variance
-            A, B, AB = self.separate_output_values(data[feature].evaluations,
-                                                   len(uncertain_parameters),
-                                                   nr_sobol_samples)
+            A, B, AB = self.separate_output_values(
+                data[feature].evaluations,
+                len(uncertain_parameters),
+                nr_sobol_samples,
+            )
 
             independent_evaluations = np.concatenate([A, B])
 
@@ -1526,7 +1615,9 @@ class UncertaintyCalculations(ParameterBase):
                 data[feature].variance = np.var(masked_evaluations, 0)
 
                 data[feature].percentile_5 = np.percentile(masked_evaluations, 5, 0)
-                data[feature].percentile_95 = np.percentile(masked_evaluations, 95, 0)
+                data[feature].percentile_95 = np.percentile(
+                    masked_evaluations, 95, 0
+                )
 
                 if len(data.uncertain_parameters) > 1:
                     # Results cannot be removed when calculating the sensitivity.
@@ -1542,36 +1633,47 @@ class UncertaintyCalculations(ParameterBase):
                         masked_mean_evaluations[i] = data[feature].mean
 
                     if not np.all(mask):
-                        logger.warning("{}: only yields ".format(feature) +
-                                       "results for {}/{} ".format(sum(mask), len(mask)) +
-                                       "parameter combinations." +
-                                       "numpy.nan results are set to the mean when calculating the Sobol indices. " +
-                                       "This might affect the Sobol indices.")
+                        logger.warning(
+                            "{}: only yields ".format(feature)
+                            + "results for {}/{} ".format(sum(mask), len(mask))
+                            + "parameter combinations."
+                            + "numpy.nan results are set to the mean when calculating the Sobol indices. "
+                            + "This might affect the Sobol indices."
+                        )
 
-
-                    sobol_first, sobol_total = self.mc_calculate_sobol(masked_mean_evaluations,
-                                                                       len(uncertain_parameters),
-                                                                       nr_sobol_samples)
+                    sobol_first, sobol_total = self.mc_calculate_sobol(
+                        masked_mean_evaluations,
+                        len(uncertain_parameters),
+                        nr_sobol_samples,
+                    )
                     data[feature].sobol_first = sobol_first
                     data[feature].sobol_total = sobol_total
                     data = self.average_sensitivity(data, sensitivity="sobol_first")
                     data = self.average_sensitivity(data, sensitivity="sobol_total")
 
             elif not allow_incomplete:
-                logger.warning("{}: not all parameter combinations give results.".format(feature) +
-                               " No uncertainty quantification is performed since allow_incomplete=False")
+                logger.warning(
+                    "{}: not all parameter combinations give results.".format(
+                        feature
+                    )
+                    + " No uncertainty quantification is performed since allow_incomplete=False"
+                )
 
             else:
-                logger.warning("{}: not all parameter combinations give results.".format(feature))
+                logger.warning(
+                    "{}: not all parameter combinations give results.".format(
+                        feature
+                    )
+                )
 
             if not np.all(mask):
                 data.incomplete.append(feature)
 
-
         return data
 
-
-    def separate_output_values(self, evaluations, nr_uncertain_parameters, nr_samples):
+    def separate_output_values(
+        self, evaluations, nr_uncertain_parameters, nr_samples
+    ):
         """
         Notes
         -----
@@ -1610,14 +1712,13 @@ class UncertaintyCalculations(ParameterBase):
         step = nr_uncertain_parameters + 2
         AB = np.zeros(shape)
 
-        A = evaluations[0:evaluations.shape[0]:step]
-        B = evaluations[(step - 1):evaluations.shape[0]:step]
+        A = evaluations[0 : evaluations.shape[0] : step]
+        B = evaluations[(step - 1) : evaluations.shape[0] : step]
 
         for i in range(nr_uncertain_parameters):
-            AB[:, i] = evaluations[(i + 1):evaluations.shape[0]:step]
+            AB[:, i] = evaluations[(i + 1) : evaluations.shape[0] : step]
 
         return A, B, AB
-
 
     def mc_calculate_sobol(self, evaluations, nr_uncertain_parameters, nr_samples):
         """
@@ -1640,17 +1741,18 @@ class UncertaintyCalculations(ParameterBase):
         sobol_total : list
             The total order Sobol indices for each uncertain parameter.
         """
-        sobol_first = [0]*nr_uncertain_parameters
-        sobol_total = [0]*nr_uncertain_parameters
+        sobol_first = [0] * nr_uncertain_parameters
+        sobol_total = [0] * nr_uncertain_parameters
 
-        A, B, AB = self.separate_output_values(evaluations, nr_uncertain_parameters, nr_samples)
+        A, B, AB = self.separate_output_values(
+            evaluations, nr_uncertain_parameters, nr_samples
+        )
 
         for i in range(nr_uncertain_parameters):
             sobol_first[i] = first_order(A, AB[:, i], B)
             sobol_total[i] = total_order(A, AB[:, i], B)
 
         return sobol_first, sobol_total
-
 
     def average_sensitivity(self, data, sensitivity="sobol_first"):
         """
@@ -1678,7 +1780,11 @@ class UncertaintyCalculations(ParameterBase):
         uncertainpy.Data
         """
         if sensitivity not in ["sobol_first", "first", "sobol_total", "total"]:
-            raise ValueError("Sensitivity must be either: sobol_first, first, sobol_total, total, not {}".format(sensitivity))
+            raise ValueError(
+                "Sensitivity must be either: sobol_first, first, sobol_total, total, not {}".format(
+                    sensitivity
+                )
+            )
 
         if sensitivity == "first":
             sensitivity = "sobol_first"
@@ -1692,6 +1798,5 @@ class UncertaintyCalculations(ParameterBase):
                     total_sense.append(np.nanmean(data[feature][sensitivity][i]))
 
                 data[feature][sensitivity + "_average"] = np.array(total_sense)
-
 
         return data

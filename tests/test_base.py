@@ -18,23 +18,20 @@ class TestBase(unittest.TestCase):
             shutil.rmtree(self.output_test_dir)
         os.makedirs(self.output_test_dir)
 
-
     def tearDown(self):
         if os.path.isdir(self.output_test_dir):
             shutil.rmtree(self.output_test_dir)
 
-
     def test_init(self):
-        base = Base(model=model_function,
-                    features=model_function,
-                    logger_level="warning")
+        base = Base(
+            model=model_function, features=model_function, logger_level="warning"
+        )
 
         self.assertIsInstance(base.model, Model)
         self.assertEqual(base.model.run, model_function)
 
         self.assertIsInstance(base.features, Features)
         self.assertEqual(base.features.features_to_run, ["model_function"])
-
 
     def test_feature(self):
         base = Base(logger_level="warning")
@@ -47,7 +44,6 @@ class TestBase(unittest.TestCase):
         self.assertIsInstance(base._features, Features)
         self.assertIsInstance(base.features, Features)
         self.assertEqual(base.features.features_to_run, [])
-
 
     def test_set_model(self):
         base = Base(logger_level="warning")
@@ -63,16 +59,16 @@ class TestBase(unittest.TestCase):
             base.model = ["list"]
 
 
-
 class TestParameterBase(unittest.TestCase):
     def test_init(self):
-        parameter_list = [["a", 1, None],
-                         ["b", 2, None]]
+        parameter_list = [["a", 1, None], ["b", 2, None]]
 
-        base = ParameterBase(parameters=parameter_list,
-                             model=model_function,
-                             features=model_function,
-                             logger_level="warning")
+        base = ParameterBase(
+            parameters=parameter_list,
+            model=model_function,
+            features=model_function,
+            logger_level="warning",
+        )
 
         self.assertIsInstance(base.model, Model)
         self.assertEqual(base.model.run, model_function)
@@ -84,12 +80,10 @@ class TestParameterBase(unittest.TestCase):
         self.assertEqual(base.parameters["a"].value, 1)
         self.assertEqual(base.parameters["b"].value, 2)
 
-
     def test_set_parameters(self):
         base = ParameterBase(logger_level="warning")
 
-        parameter_list = [["a", 1, None],
-                         ["b", 2, None]]
+        parameter_list = [["a", 1, None], ["b", 2, None]]
 
         base.parameters = parameter_list
 
@@ -97,9 +91,7 @@ class TestParameterBase(unittest.TestCase):
         self.assertEqual(base.parameters["a"].value, 1)
         self.assertEqual(base.parameters["b"].value, 2)
 
-        parameter_list = [["a", 1, None],
-                          ["b", 2, None]]
-
+        parameter_list = [["a", 1, None], ["b", 2, None]]
 
         base.parameters = Parameters(parameter_list)
 

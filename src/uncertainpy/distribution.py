@@ -7,6 +7,7 @@ Functions (that work as closures) used to set the distribution of a
 parameter to an `interval` around their original value.
 """
 
+
 def uniform(interval):
     """
     A closure that creates a function that takes a `parameter` as input and
@@ -33,12 +34,18 @@ def uniform(interval):
         cp.Uniform(parameter - abs(interval/2.*parameter),
                    parameter + abs(interval/2.*parameter)).
     """
+
     def distribution(parameter):
         if parameter == 0:
-            raise ValueError("Creating a percentage distribution around 0 does not work")
+            raise ValueError(
+                "Creating a percentage distribution around 0 does not work"
+            )
 
-        return cp.Uniform(parameter - abs(interval/2.*parameter),
-                          parameter + abs(interval/2.*parameter))
+        return cp.Uniform(
+            parameter - abs(interval / 2.0 * parameter),
+            parameter + abs(interval / 2.0 * parameter),
+        )
+
     return distribution
 
 
@@ -68,9 +75,13 @@ def normal(interval):
 
         cp.Normal(parameter, abs(interval*parameter))
     """
+
     def distribution(parameter):
         if parameter == 0:
-            raise ValueError("Creating a percentage distribution around 0 does not work")
+            raise ValueError(
+                "Creating a percentage distribution around 0 does not work"
+            )
 
-        return cp.Normal(parameter, abs(interval*parameter))
+        return cp.Normal(parameter, abs(interval * parameter))
+
     return distribution

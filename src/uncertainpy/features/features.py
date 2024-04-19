@@ -5,6 +5,7 @@ import six
 
 from ..utils.logger import setup_module_logger
 
+
 class Features(object):
     """
     Class for calculating features of a model.
@@ -70,25 +71,29 @@ class Features(object):
     --------
     uncertainpy.features.Features.reference_feature : reference_feature showing the requirements of a feature function.
     """
-    def __init__(self,
-                 new_features=None,
-                 features_to_run="all",
-                 new_utility_methods=None,
-                 interpolate=None,
-                 labels={},
-                 preprocess=None,
-                 logger_level="info"):
 
-        self.utility_methods = ["calculate_feature",
-                                "calculate_features",
-                                "calculate_all_features",
-                                "__init__",
-                                "implemented_features",
-                                "preprocess",
-                                "add_features",
-                                "reference_feature",
-                                "_preprocess",
-                                "validate"]
+    def __init__(
+        self,
+        new_features=None,
+        features_to_run="all",
+        new_utility_methods=None,
+        interpolate=None,
+        labels={},
+        preprocess=None,
+        logger_level="info",
+    ):
+        self.utility_methods = [
+            "calculate_feature",
+            "calculate_features",
+            "calculate_all_features",
+            "__init__",
+            "implemented_features",
+            "preprocess",
+            "add_features",
+            "reference_feature",
+            "_preprocess",
+            "validate",
+        ]
 
         if new_utility_methods is None:
             new_utility_methods = []
@@ -110,7 +115,6 @@ class Features(object):
         self.features_to_run = features_to_run
 
         setup_module_logger(class_instance=self, level=logger_level)
-
 
     @property
     def preprocess(self):
@@ -151,7 +155,6 @@ class Features(object):
         """
         return self._preprocess
 
-
     def _preprocess(self, *model_result):
         return model_result
 
@@ -186,7 +189,6 @@ class Features(object):
     @labels.setter
     def labels(self, new_labels):
         self.labels.update(new_labels)
-
 
     @property
     def features_to_run(self):
@@ -223,7 +225,6 @@ class Features(object):
         else:
             self._features_to_run = new_features_to_run
 
-
     @property
     def interpolate(self):
         """
@@ -249,7 +250,6 @@ class Features(object):
         """
         return self._interpolate
 
-
     @interpolate.setter
     def interpolate(self, new_interpolate):
         if new_interpolate == "all":
@@ -260,8 +260,6 @@ class Features(object):
             self._interpolate = [new_interpolate]
         else:
             self._interpolate = new_interpolate
-
-
 
     def add_features(self, new_features, labels={}):
         """
@@ -326,8 +324,6 @@ class Features(object):
                 error.args = error.args + (msg,)
                 raise
 
-
-
     def calculate_feature(self, feature_name, *preprocess_results):
         """
         Calculate feature with `feature_name`.
@@ -380,7 +376,6 @@ class Features(object):
 
         return feature_result
 
-
     def validate(self, feature_name, *feature_result):
         """
         Validate the results from ``calculate_feature``.
@@ -419,29 +414,32 @@ class Features(object):
         """
 
         if isinstance(feature_result, np.ndarray):
-            raise ValueError("{} returns an numpy array. ".format(feature_name) +
-                             "This indicates only time or values is returned. " +
-                             "{} must return time and values".format(feature_name) +
-                             "(return time, values | return None, values)")
+            raise ValueError(
+                "{} returns an numpy array. ".format(feature_name)
+                + "This indicates only time or values is returned. "
+                + "{} must return time and values".format(feature_name)
+                + "(return time, values | return None, values)"
+            )
 
         if isinstance(feature_result, six.string_types):
-            raise ValueError("{} returns a string. ".format(feature_name) +
-                             "This indicates only time or values is returned. " +
-                             "{} must return time and values".format(feature_name) +
-                             "(return time, values | return None, values)")
-
+            raise ValueError(
+                "{} returns a string. ".format(feature_name)
+                + "This indicates only time or values is returned. "
+                + "{} must return time and values".format(feature_name)
+                + "(return time, values | return None, values)"
+            )
 
         # Check that time, and values is returned
         try:
             time_feature, values_feature = feature_result
         except (ValueError, TypeError) as error:
-            msg = "feature {} must return time and values (return time, values | return None, values)".format(feature_name)
+            msg = "feature {} must return time and values (return time, values | return None, values)".format(
+                feature_name
+            )
             if not error.args:
                 error.args = ("",)
             error.args = error.args + (msg,)
             raise
-
-
 
     def calculate_features(self, *model_results):
         """
@@ -478,12 +476,13 @@ class Features(object):
 
         results = {}
         for feature in self.features_to_run:
-            time_feature, values_feature = self.calculate_feature(feature, *preprocess_results)
+            time_feature, values_feature = self.calculate_feature(
+                feature, *preprocess_results
+            )
 
             results[feature] = {"time": time_feature, "values": values_feature}
 
         return results
-
 
     def calculate_all_features(self, *model_results):
         """
@@ -521,12 +520,13 @@ class Features(object):
 
         results = {}
         for feature in self.implemented_features():
-            time_feature, values_feature = self.calculate_feature(feature, *preprocess_results)
+            time_feature, values_feature = self.calculate_feature(
+                feature, *preprocess_results
+            )
 
             results[feature] = {"time": time_feature, "values": values_feature}
 
         return results
-
 
     def implemented_features(self):
         """
@@ -539,8 +539,14 @@ class Features(object):
             A list of all callable methods in feature, that are not utility
             methods.
         """
-        return [method for method in dir(self) if callable(getattr(self, method)) and method not in self.utility_methods and method not in dir(object) and not method.startswith("_")]
-
+        return [
+            method
+            for method in dir(self)
+            if callable(getattr(self, method))
+            and method not in self.utility_methods
+            and method not in dir(object)
+            and not method.startswith("_")
+        ]
 
     def reference_feature(self, *preprocess_results):
         """

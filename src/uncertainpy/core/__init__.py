@@ -14,8 +14,10 @@ from .run_model import RunModel
 from .uncertainty_calculations import UncertaintyCalculations
 from .parallel import Parallel
 
-__all__ = ["Parallel",
-           "Base",
-           "ParameterBase",
-           "RunModel",
-           "UncertaintyCalculations"]
+__all__ = [
+    "Parallel",
+    "Base",
+    "ParameterBase",
+    "RunModel",
+    "UncertaintyCalculations",
+]

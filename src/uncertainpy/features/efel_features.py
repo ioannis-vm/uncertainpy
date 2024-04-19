@@ -159,14 +159,16 @@ class EfelFeatures(Features):
     --------
     uncertainpy.features.EfelFeatures.reference_feature : reference_feature showing the requirements of a Efel feature function.
     """
-    def __init__(self,
-                 new_features=None,
-                 features_to_run="all",
-                 interpolate=None,
-                 labels={},
-                 strict=True,
-                 logger_level="info"):
 
+    def __init__(
+        self,
+        new_features=None,
+        features_to_run="all",
+        interpolate=None,
+        labels={},
+        strict=True,
+        logger_level="info",
+    ):
         if not prerequisites:
             raise ImportError("Efel features require: efel")
 
@@ -174,54 +176,60 @@ class EfelFeatures(Features):
 
         implemented_labels = {}
 
-        super(EfelFeatures, self).__init__(new_features=new_features,
-                                           features_to_run=features_to_run,
-                                           interpolate=interpolate,
-                                           new_utility_methods=[],
-                                           labels=implemented_labels,
-                                           logger_level=logger_level)
+        super(EfelFeatures, self).__init__(
+            new_features=new_features,
+            features_to_run=features_to_run,
+            interpolate=interpolate,
+            new_utility_methods=[],
+            labels=implemented_labels,
+            logger_level=logger_level,
+        )
 
         def efel_wrapper(feature_name):
             def feature_function(time, values, info):
                 disable = False
                 logger = get_logger(self)
 
-
                 if "stimulus_start" not in info:
                     if strict:
-                        raise ValueError("Efel features require info['stimulus_start']. "
-                                           "No 'stimulus_start' found in info, "
-                                           "Set 'stimulus_start', or set strict to "
-                                           "False to use initial time as stimulus start")
+                        raise ValueError(
+                            "Efel features require info['stimulus_start']. "
+                            "No 'stimulus_start' found in info, "
+                            "Set 'stimulus_start', or set strict to "
+                            "False to use initial time as stimulus start"
+                        )
                     else:
                         info["stimulus_start"] = time[0]
-                        logger.warning("Efel features require info['stimulus_start']. "
-                                       "No 'stimulus_start' found in info, "
-                                       "setting stimulus start as initial time")
+                        logger.warning(
+                            "Efel features require info['stimulus_start']. "
+                            "No 'stimulus_start' found in info, "
+                            "setting stimulus start as initial time"
+                        )
 
                 if "stimulus_end" not in info:
                     if strict:
-                        raise ValueError("Efel features require info['stimulus_end']. "
-                                         "No 'stimulus_end' found in info, "
-                                         "Set 'stimulus_start', or set strict to "
-                                         "False to use end time as stimulus end")
+                        raise ValueError(
+                            "Efel features require info['stimulus_end']. "
+                            "No 'stimulus_end' found in info, "
+                            "Set 'stimulus_start', or set strict to "
+                            "False to use end time as stimulus end"
+                        )
                     else:
                         info["stimulus_end"] = time[-1]
-                        logger.warning("Efel features require info['stimulus_start']. "
-                                       "No 'stimulus_end' found in info, "
-                                       "setting stimulus end as end time")
-
+                        logger.warning(
+                            "Efel features require info['stimulus_start']. "
+                            "No 'stimulus_end' found in info, "
+                            "setting stimulus end as end time"
+                        )
 
                 if info["stimulus_start"] >= info["stimulus_end"]:
                     raise ValueError("stimulus_start >= stimulus_end.")
-
 
                 trace = {}
                 trace["T"] = time
                 trace["V"] = values
                 trace["stim_start"] = [info["stimulus_start"]]
                 trace["stim_end"] = [info["stimulus_end"]]
-
 
                 # Disable decay_time_constant_after_stim if no time points left
                 # in simulation after stimulation has ended.
@@ -230,7 +238,9 @@ class EfelFeatures(Features):
                     if info["stimulus_end"] >= time[-1]:
                         return None, None
 
-                result = efel.getMeanFeatureValues([trace], [feature_name], raise_warnings=False)
+                result = efel.getMeanFeatureValues(
+                    [trace], [feature_name], raise_warnings=False
+                )
 
                 return None, result[0][feature_name]
 
@@ -242,10 +252,6 @@ class EfelFeatures(Features):
 
         self.labels = labels
         self.features_to_run = features_to_run
-
-
-
-
 
     def reference_feature(self, time, values, info):
         """

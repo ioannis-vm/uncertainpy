@@ -6,8 +6,6 @@ from ..models import Model
 from ..parameters import Parameters
 
 
-
-
 class Base(object):
     """
     Set and update features and model.
@@ -41,11 +39,8 @@ class Base(object):
     uncertainpy.models.Model
     uncertainpy.models.Model.run : Requirements for the model run function.
     """
-    def __init__(self,
-                 model=None,
-                 features=None,
-                 logger_level="info"):
 
+    def __init__(self, model=None, features=None, logger_level="info"):
         setup_module_logger(class_instance=self, level=logger_level)
 
         self._model = None
@@ -55,8 +50,6 @@ class Base(object):
 
         self.features = features
         self.model = model
-
-
 
     @property
     def features(self):
@@ -86,15 +79,14 @@ class Base(object):
         """
         return self._features
 
-
     @features.setter
     def features(self, new_features):
         if isinstance(new_features, Features):
             self._features = new_features
         else:
-            self._features = Features(new_features=new_features,
-                                      logger_level=self._logger_level)
-
+            self._features = Features(
+                new_features=new_features, logger_level=self._logger_level
+            )
 
     @property
     def model(self):
@@ -126,11 +118,11 @@ class Base(object):
         if isinstance(new_model, Model) or new_model is None:
             self._model = new_model
         elif callable(new_model):
-            self._model = Model(new_model,
-                                logger_level=self._logger_level)
+            self._model = Model(new_model, logger_level=self._logger_level)
         else:
-            raise TypeError("model must be a Model or Model subclass instance, callable or None")
-
+            raise TypeError(
+                "model must be a Model or Model subclass instance, callable or None"
+            )
 
 
 class ParameterBase(Base):
@@ -181,20 +173,16 @@ class ParameterBase(Base):
     uncertainpy.models.Model
     uncertainpy.models.Model.run : Requirements for the model run function.
     """
-    def __init__(self,
-                 model=None,
-                 parameters=None,
-                 features=None,
-                 logger_level="info"):
 
-        super(ParameterBase, self).__init__(model=model,
-                                            features=features,
-                                            logger_level=logger_level)
+    def __init__(
+        self, model=None, parameters=None, features=None, logger_level="info"
+    ):
+        super(ParameterBase, self).__init__(
+            model=model, features=features, logger_level=logger_level
+        )
 
         self._parameters = None
         self.parameters = parameters
-
-
 
     @property
     def parameters(self):
@@ -220,7 +208,6 @@ class ParameterBase(Base):
         uncertainpy.Parameters
         """
         return self._parameters
-
 
     @parameters.setter
     def parameters(self, new_parameters):

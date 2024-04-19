@@ -25,7 +25,6 @@ from .base import ParameterBase
 from .parallel import Parallel
 
 
-
 class RunModel(ParameterBase):
     """
     Calculate model and feature results for a series of different model parameters,
@@ -84,30 +83,26 @@ class RunModel(ParameterBase):
     uncertainpy.models.Model.run : Requirements for the model run function.
     """
 
-    def __init__(self,
-                 model,
-                 parameters,
-                 features=None,
-                 logger_level="info",
-                 CPUs="max"):
-
+    def __init__(
+        self, model, parameters, features=None, logger_level="info", CPUs="max"
+    ):
         if CPUs == "max":
             import multiprocess
 
             CPUs = multiprocess.cpu_count()
 
+        self._parallel = Parallel(
+            model=model, features=features, logger_level=logger_level
+        )
 
-        self._parallel = Parallel(model=model,
-                                  features=features,
-                                  logger_level=logger_level)
-
-        super(RunModel, self).__init__(model=model,
-                                       parameters=parameters,
-                                       features=features,
-                                       logger_level=logger_level)
+        super(RunModel, self).__init__(
+            model=model,
+            parameters=parameters,
+            features=features,
+            logger_level=logger_level,
+        )
 
         self.CPUs = CPUs
-
 
     @ParameterBase.features.setter
     def features(self, new_features):
@@ -115,13 +110,11 @@ class RunModel(ParameterBase):
 
         self._parallel.features = self.features
 
-
     @ParameterBase.model.setter
     def model(self, new_model):
         ParameterBase.model.fset(self, new_model)
 
         self._parallel.model = self.model
-
 
     def apply_interpolation(self, results, feature):
         """
@@ -187,7 +180,11 @@ class RunModel(ParameterBase):
 
             if interpolation is None:
                 interpolated_results.append(np.nan)
-                logger.error("{}: Unknown error while creating the interpolation".format(feature))
+                logger.error(
+                    "{}: Unknown error while creating the interpolation".format(
+                        feature
+                    )
+                )
 
             elif isinstance(interpolation, six.string_types):
                 interpolated_results.append(np.nan)
@@ -197,10 +194,6 @@ class RunModel(ParameterBase):
                 interpolated_results.append(interpolation(time))
 
         return time, interpolated_results
-
-
-
-
 
     def results_to_data(self, results):
         """
@@ -294,41 +287,48 @@ class RunModel(ParameterBase):
         #                     data[feature].evaluations.append(result[feature]["values"])
         #                     data[feature].time.append(result[feature]["time"])
 
-                        # raise ValueError("{}: The number of points varies between evaluations.".format(feature)
-                        #                  + " Try setting interpolate".format(feature))
-
+        # raise ValueError("{}: The number of points varies between evaluations.".format(feature)
+        #                  + " Try setting interpolate".format(feature))
 
         # Store all results in data, interpolate as needed
         # TODO: save raw result instead of interpolated result?
         for feature in data:
             # Interpolate the data if it is irregular, and ignore the model if required
-            if feature in self.features.interpolate or \
-                    (feature == self.model.name and self.model.interpolate and not self.model.ignore):
+            if feature in self.features.interpolate or (
+                feature == self.model.name
+                and self.model.interpolate
+                and not self.model.ignore
+            ):
                 # TODO implement interpolation of >= 2d data, part2
                 if np.ndim(results[0][feature]["values"]) >= 2:
                     # raise NotImplementedError("Feature: {feature},".format(feature=feature)
                     #                           + " no support for >= 2D interpolation")
-                    logger.error("{feature}:".format(feature=feature)
-                                 + " no support for >= 2D interpolation implemented")
+                    logger.error(
+                        "{feature}:".format(feature=feature)
+                        + " no support for >= 2D interpolation implemented"
+                    )
 
                     add_results(results, data, feature)
 
-
                 elif np.ndim(results[0][feature]["values"]) == 1:
-                    data[feature].time, data[feature].evaluations = self.apply_interpolation(results, feature)
+                    (
+                        data[feature].time,
+                        data[feature].evaluations,
+                    ) = self.apply_interpolation(results, feature)
 
                 # Interpolating a 0D result makes no sense, so if a 0D feature
                 # is supposed to be interpolated store it as normal
                 elif np.ndim(results[0][feature]["values"]) == 0:
-                    logger.warning("{feature}: ".format(feature=feature) +
-                                   "returns a 0D result. No interpolation is performed.")
+                    logger.warning(
+                        "{feature}: ".format(feature=feature)
+                        + "returns a 0D result. No interpolation is performed."
+                    )
 
                     data[feature].time = results[0][feature]["time"]
 
                     data[feature].evaluations = []
                     for result in results:
                         data[feature].evaluations.append(result[feature]["values"])
-
 
             elif feature == self.model.name and self.model.ignore:
                 add_results(results, data, feature)
@@ -342,19 +342,30 @@ class RunModel(ParameterBase):
                     add_results(results, data, feature)
 
                     if feature == self.model.name:
-                        msg = "{}: The number of points varies between evaluations. ".format(feature) + \
-                              "Make sure {} returns the same number of points with different parameters, ".format(feature) + \
-                              "implement Model.postprocess, or try to set interpolate=True."
+                        msg = (
+                            "{}: The number of points varies between evaluations. ".format(
+                                feature
+                            )
+                            + "Make sure {} returns the same number of points with different parameters, ".format(
+                                feature
+                            )
+                            + "implement Model.postprocess, or try to set interpolate=True."
+                        )
                     else:
-                        msg = "{}: The number of points varies between evaluations. ".format(feature) + \
-                              "Make sure {} returns the same number of points, ".format(feature) + \
-                              "or try add {} to interpolate=[].".format(feature)
+                        msg = (
+                            "{}: The number of points varies between evaluations. ".format(
+                                feature
+                            )
+                            + "Make sure {} returns the same number of points, ".format(
+                                feature
+                            )
+                            + "or try add {} to interpolate=[].".format(feature)
+                        )
 
                     logger.error(msg)
 
                     # raise ValueError("{}: The number of points varies between evaluations.".format(feature)
                     #                  + " Try setting interpolate".format(feature))
-
 
                 else:
                     # Store data from results in a Data object
@@ -365,9 +376,6 @@ class RunModel(ParameterBase):
                         data[feature].evaluations.append(result[feature]["values"])
 
         return data
-
-
-
 
     def evaluate_nodes(self, nodes, uncertain_parameters):
         """
@@ -415,7 +423,9 @@ class RunModel(ParameterBase):
         """
         if self.model.suppress_graphics:
             if not prerequisites:
-                raise ImportError("Running with suppress_graphics require: xvfbwrapper")
+                raise ImportError(
+                    "Running with suppress_graphics require: xvfbwrapper"
+                )
 
             vdisplay = Xvfb()
             vdisplay.start()
@@ -432,29 +442,27 @@ class RunModel(ParameterBase):
             # pool.map(self._parallel.run, model_parameters)
             # chunksize = int(np.ceil(len(model_parameters)/self.CPUs))
             chunksize = 1
-            for result in tqdm(pool.imap(self._parallel.run, model_parameters, chunksize),
-                               desc="Running model",
-                               total=len(nodes.T)):
-
+            for result in tqdm(
+                pool.imap(self._parallel.run, model_parameters, chunksize),
+                desc="Running model",
+                total=len(nodes.T),
+            ):
                 results.append(result)
 
             pool.close()
 
         else:
-            for result in tqdm(imap(self._parallel.run, model_parameters),
-                               desc="Running model",
-                               total=len(nodes.T)):
-
+            for result in tqdm(
+                imap(self._parallel.run, model_parameters),
+                desc="Running model",
+                total=len(nodes.T),
+            ):
                 results.append(result)
-
-
 
         if self.model.suppress_graphics:
             vdisplay.stop()
 
         return results
-
-
 
     def create_model_parameters(self, nodes, uncertain_parameters):
         """
@@ -501,7 +509,6 @@ class RunModel(ParameterBase):
             model_parameters.append(parameters)
 
         return model_parameters
-
 
     def is_regular(self, results, feature):
         """
@@ -572,7 +579,6 @@ class RunModel(ParameterBase):
             if tmp_array.dtype is np.dtype("object"):
                 return False
 
-
             if not contains_nan(values):
                 try:
                     if np.shape(values_prev) != np.shape(values):
@@ -585,7 +591,6 @@ class RunModel(ParameterBase):
                 values_prev = values
 
         return True
-
 
     def run(self, nodes, uncertain_parameters):
         """
@@ -685,7 +690,7 @@ class RunModel(ParameterBase):
 
         warnings.warn(
             "regularize_nan_results is no longer used as nan results no longer are required to be regular.",
-            DeprecationWarning
+            DeprecationWarning,
         )
 
         def regularize(results, data):
@@ -710,7 +715,9 @@ class RunModel(ParameterBase):
                 for i in range(len(results)):
                     values = results[i][feature][data]
                     if np.all(np.isnan(values)) and np.shape(values) != shape:
-                        results[i][feature][data] = np.full(shape, np.nan, dtype=float)
+                        results[i][feature][data] = np.full(
+                            shape, np.nan, dtype=float
+                        )
 
             return results
 

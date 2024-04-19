@@ -90,27 +90,31 @@ class NeuronModel(Model):
     -----
     Measures the voltage in the section with name ``soma``.
     """
-    def __init__(self,
-                 file="mosinit.hoc",
-                 path="",
-                 interpolate=True,
-                 stimulus_start=None,
-                 stimulus_end=None,
-                 name=None,
-                 ignore=False,
-                 run=None,
-                 record_from="soma",
-                 labels=["Time (ms)", "Membrane potential (mV)"],
-                 suppress_graphics=True,
-                 logger_level="info",
-                 info={},
-                 **model_kwargs):
 
-        super(NeuronModel, self).__init__(interpolate=interpolate,
-                                          ignore=ignore,
-                                          labels=labels,
-                                          suppress_graphics=suppress_graphics,
-                                          **model_kwargs)
+    def __init__(
+        self,
+        file="mosinit.hoc",
+        path="",
+        interpolate=True,
+        stimulus_start=None,
+        stimulus_end=None,
+        name=None,
+        ignore=False,
+        run=None,
+        record_from="soma",
+        labels=["Time (ms)", "Membrane potential (mV)"],
+        suppress_graphics=True,
+        logger_level="info",
+        info={},
+        **model_kwargs
+    ):
+        super(NeuronModel, self).__init__(
+            interpolate=interpolate,
+            ignore=ignore,
+            labels=labels,
+            suppress_graphics=suppress_graphics,
+            **model_kwargs
+        )
 
         self.file = file
         self.path = path
@@ -133,8 +137,6 @@ class NeuronModel(Model):
         self.rec_section = record_from
 
         setup_module_logger(class_instance=self, level=logger_level)
-
-
 
     def load_neuron(self, path, file):
         """
@@ -172,8 +174,6 @@ class NeuronModel(Model):
         os.chdir(current_dir)
 
         return h
-
-
 
     def load_python(self, path, file, name):
         """
@@ -215,8 +215,6 @@ class NeuronModel(Model):
 
         return model
 
-
-
     # Be really careful with these. Need to make sure that all references to
     # neuron are inside this class
     def _record(self, ref_data):
@@ -226,7 +224,6 @@ class NeuronModel(Model):
         data = self.h.Vector()
         data.record(getattr(self.h, ref_data))
         return data
-
 
     def _to_array(self, hocObject):
         """
@@ -246,7 +243,6 @@ class NeuronModel(Model):
         hocObject.to_python(array)
         return array
 
-
     def _record_v(self):
         """
         Record voltage in the requested compartment.
@@ -263,7 +259,9 @@ class NeuronModel(Model):
         if self.rec_section.lower() not in section_names:
             raise RuntimeError(
                 "No section with name {c} found in {n}. Unable to record.".format(
-                    c=self.rec_section, n=self.name))
+                    c=self.rec_section, n=self.name
+                )
+            )
 
         compartment_ind = section_names.index(self.rec_section.lower())
         section = list(self.h.allsec())[compartment_ind]
@@ -276,8 +274,9 @@ class NeuronModel(Model):
         if not hasattr(self.h, "voltage_soma"):
             raise RuntimeError(
                 "No section with name {c} found in {n}. Unable to record.".format(
-                    c=self.rec_section, n=self.name))
-
+                    c=self.rec_section, n=self.name
+                )
+            )
 
     def _record_t(self):
         """
@@ -285,8 +284,6 @@ class NeuronModel(Model):
         """
         if self.time is None:
             self.time = self._record("_ref_t")
-
-
 
     @Model.run.setter
     def run(self, new_run):
@@ -333,8 +330,6 @@ class NeuronModel(Model):
         """
         Model.run.fset(self, new_run)
 
-
-
     def _run(self, **parameters):
         if self.file.endswith(".hoc"):
             result = self.run_neuron(**parameters)
@@ -345,7 +340,6 @@ class NeuronModel(Model):
         else:
             raise ValueError("Unknown fileformat on file: {}".format(self.file))
         return result
-
 
     def run_neuron(self, **parameters):
         """
@@ -397,8 +391,6 @@ class NeuronModel(Model):
         time = self._to_array(self.time)
 
         return time, values, self.info
-
-
 
     def run_python(self, **parameters):
         """
@@ -454,9 +446,7 @@ class NeuronModel(Model):
             time, values = result
             result = (time, values, self.info)
 
-
         return result
-
 
     def set_parameters(self, parameters):
         """
@@ -470,7 +460,6 @@ class NeuronModel(Model):
         """
         for parameter in parameters:
             self.h(parameter + " = " + str(parameters[parameter]))
-
 
     def postprocess(self, time, values, info):
         """

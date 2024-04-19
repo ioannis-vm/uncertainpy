@@ -27,7 +27,6 @@ model = HodgkinHuxley()
 # prettyPlot(time, V, new_figure=False, nr_colors=3, style="seaborn-white", linewidth=linewidth)
 
 
-
 # parameters_3 = {"gbar_Na": scale2*120,
 #                 "gbar_K": scale2*36,
 #                 "gbar_l": scale2*0.3}
@@ -43,9 +42,7 @@ model = HodgkinHuxley()
 
 
 # Define a parameter list
-parameter_list = [["gbar_Na", 120],
-                  ["gbar_K", 36],
-                  ["gbar_l", 0.3]]
+parameter_list = [["gbar_Na", 120], ["gbar_K", 36], ["gbar_l", 0.3]]
 
 # Create the parameters
 parameters = un.Parameters(parameter_list)
@@ -58,8 +55,7 @@ parameters.set_all_distributions(un.uniform(0.25))
 model = HodgkinHuxley()
 
 # Perform the uncertainty quantification
-UQ = un.UncertaintyQuantification(model=model,
-                                  parameters=parameters)
+UQ = un.UncertaintyQuantification(model=model, parameters=parameters)
 UQ.quantify(plot=None, nr_pc_mc_samples=10**2)
 
 
@@ -70,10 +66,7 @@ percentile_5 = UQ.data["HodgkinHuxley"].percentile_5
 
 ax = prettyPlot(time, mean, color=0, palette="deep", linewidth=2)
 
-ax.fill_between(time,
-                percentile_5,
-                percentile_95,
-                color=(0.45, 0.65, 0.9))
+ax.fill_between(time, percentile_5, percentile_95, color=(0.45, 0.65, 0.9))
 
 plt.savefig("hh_prediction.pdf")
 plt.show()

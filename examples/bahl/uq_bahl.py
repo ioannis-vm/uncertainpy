@@ -1,14 +1,17 @@
 import uncertainpy as un
 import chaospy as cp
 
+
 # Subclassing NeuronModel
 class NeuronModelBahl(un.NeuronModel):
     def __init__(self, stimulus_start=None, stimulus_end=None):
         # Hardcode the path of the Bahl neuron model
-        super(NeuronModelBahl, self).__init__(interpolate=True,
-                                              path="bahl_model",
-                                              stimulus_start=stimulus_start,
-                                              stimulus_end=stimulus_end)
+        super(NeuronModelBahl, self).__init__(
+            interpolate=True,
+            path="bahl_model",
+            stimulus_start=stimulus_start,
+            stimulus_end=stimulus_end,
+        )
 
     # Reimplement the set_parameters method used by run
     def set_parameters(self, parameters):
@@ -25,14 +28,13 @@ class NeuronModelBahl(un.NeuronModel):
 model = NeuronModelBahl(stimulus_start=100, stimulus_end=600)
 
 # Define a parameter list and use it directly
-parameters = {"e_pas": cp.Uniform(-60, -85),
-              "apical Ra": cp.Uniform(150, 300)}
+parameters = {"e_pas": cp.Uniform(-60, -85), "apical Ra": cp.Uniform(150, 300)}
 
 # Initialize the features
 features = un.SpikingFeatures()
 
 # Perform the uncertainty quantification
-UQ = un.UncertaintyQuantification(model=model,
-                                  parameters=parameters,
-                                  features=features)
+UQ = un.UncertaintyQuantification(
+    model=model, parameters=parameters, features=features
+)
 data = UQ.quantify()

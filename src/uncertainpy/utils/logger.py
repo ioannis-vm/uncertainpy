@@ -15,17 +15,23 @@ class MyFormatter(logging.Formatter):
     """
     The logging formater.
     """
+
     # debug_format = "%(levelname)s - %(name)s - %(module)s - %(filename)s - %(lineno)d - %(message)s"
     # info_format = "%(message)s"
     # warning_format = "%(levelname)s - %(message)s"
     # error_format = "%(levelname)s - %(module)s - %(filename)s - %(lineno)d - %(message)s"
 
-    debug_format = "%(levelname)s - %(name)s - %(funcName)s  - %(lineno)d - %(message)s"
+    debug_format = (
+        "%(levelname)s - %(name)s - %(funcName)s  - %(lineno)d - %(message)s"
+    )
     info_format = "%(message)s"
     warning_format = "%(levelname)s - %(message)s"
-    error_format = "%(levelname)s - %(module)s - %(filename)s - %(lineno)d - %(message)s"
-    critical_format = "%(levelname)s - %(name)s - %(funcName)s - %(lineno)d - %(message)s"
-
+    error_format = (
+        "%(levelname)s - %(module)s - %(filename)s - %(lineno)d - %(message)s"
+    )
+    critical_format = (
+        "%(levelname)s - %(name)s - %(funcName)s - %(lineno)d - %(message)s"
+    )
 
     debug_fmt = logging.Formatter(debug_format)
     info_fmt = logging.Formatter(info_format)
@@ -33,10 +39,8 @@ class MyFormatter(logging.Formatter):
     error_fmt = logging.Formatter(error_format)
     critical_fmt = logging.Formatter(critical_format)
 
-
     def __init__(self, fmt="%(levelno)s: %(msg)s"):
         super(MyFormatter, self).__init__(fmt)
-
 
     def format(self, record):
         if record.levelno == logging.DEBUG:
@@ -56,6 +60,7 @@ class TqdmLoggingHandler(logging.StreamHandler):
     Set logging so logging to  stream works with Tqdm,
     logging now uses tqdm.write.
     """
+
     def emit(self, record):
         msg = self.format(record)
         tqdm.tqdm.write(msg)
@@ -66,6 +71,7 @@ class MultiprocessLoggingHandler(logging.Handler):
     Adapted from:
     https://stackoverflow.com/questions/641420/how-should-i-log-while-using-multiprocessing-in-python
     """
+
     def __init__(self, filename, mode):
         logging.Handler.__init__(self)
 
@@ -80,11 +86,9 @@ class MultiprocessLoggingHandler(logging.Handler):
         self.t.daemon = True
         self.t.start()
 
-
     def setFormatter(self, fmt):
         logging.Handler.setFormatter(self, fmt)
         self.handler.setFormatter(fmt)
-
 
     def receive(self):
         # while True:
@@ -97,7 +101,7 @@ class MultiprocessLoggingHandler(logging.Handler):
             except EOFError:
                 break
             except queue.Empty:
-                pass # This periodically checks if the logger is closed.
+                pass  # This periodically checks if the logger is closed.
             except:
                 traceback.print_exc(file=sys.stderr)
 
@@ -106,7 +110,6 @@ class MultiprocessLoggingHandler(logging.Handler):
 
     def send(self, s):
         self.queue.put_nowait(s)
-
 
     def _format_record(self, record):
         # ensure that exc_info and args
@@ -184,7 +187,9 @@ def get_logger(class_instance):
     logger : Logger object
         The logger object.
     """
-    return logging.getLogger(class_instance.__module__ + "." +  class_instance.__class__.__name__)
+    return logging.getLogger(
+        class_instance.__module__ + "." + class_instance.__class__.__name__
+    )
 
 
 def setup_module_logger(class_instance, level="info"):
@@ -207,7 +212,7 @@ def setup_module_logger(class_instance, level="info"):
     if level is None:
         return
 
-    name = class_instance.__module__ + "." +  class_instance.__class__.__name__
+    name = class_instance.__module__ + "." + class_instance.__class__.__name__
 
     if not name.startswith("uncertainpy."):
         name = "uncertainpy." + name
@@ -215,7 +220,6 @@ def setup_module_logger(class_instance, level="info"):
     setup_logger(name, level=level)
 
     add_screen_handler()
-
 
 
 def setup_logger(name, level="info"):
@@ -241,7 +245,6 @@ def setup_logger(name, level="info"):
         raise ValueError('Invalid log level: %s' % level)
 
     logger.setLevel(numeric_level)
-
 
 
 def add_screen_handler(name="uncertainpy"):
@@ -293,7 +296,9 @@ def add_file_handler(name="uncertainpy", filename="uncertainpy.log"):
                 break
 
         if not handler_exists:
-            multiprocess_file = MultiprocessLoggingHandler(filename=filename, mode="w")
+            multiprocess_file = MultiprocessLoggingHandler(
+                filename=filename, mode="w"
+            )
             multiprocess_file.setFormatter(MyFormatter())
 
             logger.addHandler(multiprocess_file)
@@ -306,11 +311,12 @@ def add_file_handler(name="uncertainpy", filename="uncertainpy.log"):
                 # file_handler.close()
                 logger.removeHandler(file_handler)
 
-                multiprocess_file = MultiprocessLoggingHandler(filename=filename, mode="w")
+                multiprocess_file = MultiprocessLoggingHandler(
+                    filename=filename, mode="w"
+                )
                 multiprocess_file.setFormatter(MyFormatter())
 
                 logger.addHandler(multiprocess_file)
-
 
 
 # def add_handlers(name="uncertainpy", filename="uncertainpy.log"):

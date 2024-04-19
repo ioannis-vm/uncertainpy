@@ -105,28 +105,30 @@ class GeneralNetworkFeatures(Features):
     GeneralNetworkFeatures.preprocess
     GeneralNetworkFeatures.reference_feature : reference_feature showing the requirements of a feature function.
     """
-    def __init__(self,
-                 new_features=None,
-                 features_to_run="all",
-                 interpolate=None,
-                 labels={},
-                 units=None,
-                 logger_level="info"):
 
+    def __init__(
+        self,
+        new_features=None,
+        features_to_run="all",
+        interpolate=None,
+        labels={},
+        units=None,
+        logger_level="info",
+    ):
         if not prerequisites:
             raise ImportError("Network features require: neo, quantities")
 
-        super(GeneralNetworkFeatures, self).__init__(new_features=new_features,
-                                                     features_to_run=features_to_run,
-                                                     interpolate=interpolate,
-                                                     labels=labels,
-                                                     logger_level=logger_level)
+        super(GeneralNetworkFeatures, self).__init__(
+            new_features=new_features,
+            features_to_run=features_to_run,
+            interpolate=interpolate,
+            labels=labels,
+            logger_level=logger_level,
+        )
         if units is None:
             self.units = pq.ms
         else:
             self.units = units
-
-
 
     def preprocess(self, simulation_end, spiketrains):
         """
@@ -164,18 +166,19 @@ class GeneralNetworkFeatures(Features):
         uncertainpy.models.Model.run : The model run method
         """
 
-
         if simulation_end is None or np.isnan(simulation_end):
-            raise ValueError("simulation_end is NaN or None. simulation_end must be the time when the simulation ends.")
+            raise ValueError(
+                "simulation_end is NaN or None. simulation_end must be the time when the simulation ends."
+            )
 
         neo_spiketrains = []
         for spiketrain in spiketrains:
-            neo_spiketrain = neo.core.SpikeTrain(spiketrain, t_stop=simulation_end, units=self.units)
+            neo_spiketrain = neo.core.SpikeTrain(
+                spiketrain, t_stop=simulation_end, units=self.units
+            )
             neo_spiketrains.append(neo_spiketrain)
 
         return simulation_end, neo_spiketrains
-
-
 
     def reference_feature(self, simulation_end, neo_spiketrains):
         """

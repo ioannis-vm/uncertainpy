@@ -1,15 +1,29 @@
 import os
 import sys
+
 # import mock
 
 # Get version
 exec(open(os.path.join("..", "..", "src", "uncertainpy", "_version.py")).read())
 
 # Mock packages
-uncertainpy_require = ["chaospy", "tqdm", "h5py", "multiprocess", "numpy",
-                       "matplotlib.pyplot", "scipy.interpolate", "scipy",
-                       "seaborn", "matplotlib", "xvfbwrapper", "SALib.sample",
-                       "SALib.analyse", "scipy.stats", "SALib"]
+uncertainpy_require = [
+    "chaospy",
+    "tqdm",
+    "h5py",
+    "multiprocess",
+    "numpy",
+    "matplotlib.pyplot",
+    "scipy.interpolate",
+    "scipy",
+    "seaborn",
+    "matplotlib",
+    "xvfbwrapper",
+    "SALib.sample",
+    "SALib.analyse",
+    "scipy.stats",
+    "SALib",
+]
 
 # for mod_name in uncertainpy_require:
 #     sys.modules[mod_name] = mock.Mock()
@@ -45,7 +59,8 @@ sys.path.insert(0, os.path.abspath("../../src"))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
+extensions = [
+    'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
@@ -53,7 +68,8 @@ extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'sphinx.ext.autosummary',
-    'sphinx.ext.napoleon']
+    'sphinx.ext.napoleon',
+]
 
 viewcode_import = True
 
@@ -161,15 +177,12 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
@@ -179,8 +192,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'uncertainpy.tex', u'Uncertainpy Documentation',
-     u'Simen Tennøe', 'manual'),
+    (
+        master_doc,
+        'uncertainpy.tex',
+        u'Uncertainpy Documentation',
+        u'Simen Tennøe',
+        'manual',
+    ),
 ]
 
 
@@ -188,10 +206,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'uncertainpy', u'Uncertainpy Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, 'uncertainpy', u'Uncertainpy Documentation', [author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -200,11 +215,16 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'uncertainpy', u'Uncertainpy Documentation',
-     author, 'Uncertainpy', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        'uncertainpy',
+        u'Uncertainpy Documentation',
+        author,
+        'Uncertainpy',
+        'One line description of project.',
+        'Miscellaneous',
+    ),
 ]
-
 
 
 # TODO Remove this once issue #2549 on sphinx github repo have been fixed
@@ -217,7 +237,9 @@ class PatchedPythonDomain(PythonDomain):
         if 'refspecific' in node:
             del node['refspecific']
         return super(PatchedPythonDomain, self).resolve_xref(
-            env, fromdocname, builder, typ, target, node, contnode)
+            env, fromdocname, builder, typ, target, node, contnode
+        )
+
 
 def setup(sphinx):
     sphinx.override_domain(PatchedPythonDomain)

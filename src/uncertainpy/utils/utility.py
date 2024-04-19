@@ -18,13 +18,12 @@ def set_nan(values, index):
         Index where to set `values` to ``numpy.nan``.
     """
     if hasattr(index, "__iter__"):
-        if(len(index) == 1):
+        if len(index) == 1:
             values[index[0]] = np.nan
         else:
             set_nan(values[index[0]], index[1:])
     else:
         values[index] = np.nan
-
 
 
 def none_to_nan(values):
@@ -108,7 +107,6 @@ def contains_nan(values):
             return False
 
 
-
 # Not working, but currently not needed
 # def only_none_or_nan(values):
 #     """
@@ -147,8 +145,6 @@ def contains_nan(values):
 #             return True
 
 
-
-
 def lengths(values):
     """
     Get the lengths of a list and all its sublists.
@@ -175,8 +171,6 @@ def lengths(values):
     recursive_len(values, lengths)
 
     return lengths
-
-
 
 
 def is_regular(values):
@@ -206,8 +200,6 @@ def is_regular(values):
         return False
 
     return True
-
-
 
 
 ###################
@@ -290,4 +282,3 @@ def is_regular(values):
 #         value = np.array(values)
 
 #     return values
-

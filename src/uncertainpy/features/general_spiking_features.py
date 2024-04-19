@@ -116,28 +116,32 @@ class GeneralSpikingFeatures(Features):
     uncertainpy.features.Features.reference_feature : reference_feature showing the requirements of a feature function.
     uncertainpy.features.Spikes : Class for finding spikes in the model result.
     """
-    def __init__(self,
-                 new_features=None,
-                 features_to_run="all",
-                 interpolate=None,
-                 threshold=-30,
-                 end_threshold=-10,
-                 extended_spikes=False,
-                 trim=True,
-                 normalize=False,
-                 min_amplitude=0,
-                 min_duration=0,
-                 labels={},
-                 logger_level="info"):
 
+    def __init__(
+        self,
+        new_features=None,
+        features_to_run="all",
+        interpolate=None,
+        threshold=-30,
+        end_threshold=-10,
+        extended_spikes=False,
+        trim=True,
+        normalize=False,
+        min_amplitude=0,
+        min_duration=0,
+        labels={},
+        logger_level="info",
+    ):
         new_utility_methods = ["calculate_spikes"]
 
-        super(GeneralSpikingFeatures, self).__init__(new_features=new_features,
-                                                     features_to_run=features_to_run,
-                                                     interpolate=interpolate,
-                                                     new_utility_methods=new_utility_methods,
-                                                     labels=labels,
-                                                     logger_level=logger_level)
+        super(GeneralSpikingFeatures, self).__init__(
+            new_features=new_features,
+            features_to_run=features_to_run,
+            interpolate=interpolate,
+            new_utility_methods=new_utility_methods,
+            labels=labels,
+            logger_level=logger_level,
+        )
 
         self.spikes = None
 
@@ -148,7 +152,6 @@ class GeneralSpikingFeatures(Features):
         self.normalize = normalize
         self.min_amplitude = min_amplitude
         self.min_duration = min_duration
-
 
     def preprocess(self, time, values, info):
         """
@@ -183,29 +186,32 @@ class GeneralSpikingFeatures(Features):
         """
         self.values = values
 
-        self.spikes = self.calculate_spikes(time,
-                                            values,
-                                            threshold=self.threshold,
-                                            end_threshold=self.end_threshold,
-                                            extended_spikes=self.extended_spikes,
-                                            trim=self.trim,
-                                            normalize=self.normalize,
-                                            min_amplitude=self.min_amplitude,
-                                            min_duration=self.min_duration)
+        self.spikes = self.calculate_spikes(
+            time,
+            values,
+            threshold=self.threshold,
+            end_threshold=self.end_threshold,
+            extended_spikes=self.extended_spikes,
+            trim=self.trim,
+            normalize=self.normalize,
+            min_amplitude=self.min_amplitude,
+            min_duration=self.min_duration,
+        )
 
         return time, self.spikes, info
 
-
-    def calculate_spikes(self,
-                        time,
-                        values,
-                        threshold=-30,
-                        end_threshold=-10,
-                        extended_spikes=False,
-                        trim=True,
-                        normalize=False,
-                        min_amplitude=0,
-                        min_duration=0):
+    def calculate_spikes(
+        self,
+        time,
+        values,
+        threshold=-30,
+        end_threshold=-10,
+        extended_spikes=False,
+        trim=True,
+        normalize=False,
+        min_amplitude=0,
+        min_duration=0,
+    ):
         """
         Calculating spikes of a model result, works with single neuron models and
         voltage traces.
@@ -253,18 +259,19 @@ class GeneralSpikingFeatures(Features):
         """
         spikes = Spikes()
 
-        spikes.find_spikes(time,
-                           values,
-                           threshold=threshold,
-                           end_threshold=end_threshold,
-                           extended_spikes=extended_spikes,
-                           trim=trim,
-                           normalize=normalize,
-                           min_amplitude=min_amplitude,
-                           min_duration=min_duration)
+        spikes.find_spikes(
+            time,
+            values,
+            threshold=threshold,
+            end_threshold=end_threshold,
+            extended_spikes=extended_spikes,
+            trim=trim,
+            normalize=normalize,
+            min_amplitude=min_amplitude,
+            min_duration=min_duration,
+        )
 
         return spikes
-
 
     def reference_feature(self, time, spikes, info):
         """

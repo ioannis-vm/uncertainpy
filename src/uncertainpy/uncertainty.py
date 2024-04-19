@@ -102,29 +102,35 @@ class UncertaintyQuantification(ParameterBase):
     uncertainpy.core.UncertaintyCalculations.create_PCE_custom : Requirements for create_PCE_custom
     uncertainpy.models.Model.run : Requirements for the model run function.
     """
-    def __init__(self,
-                 model,
-                 parameters,
-                 features=None,
-                 uncertainty_calculations=None,
-                 create_PCE_custom=None,
-                 custom_uncertainty_quantification=None,
-                 CPUs="max",
-                 logger_level="info",
-                 logger_filename="uncertainpy.log",
-                 backend="auto"):
 
-
+    def __init__(
+        self,
+        model,
+        parameters,
+        features=None,
+        uncertainty_calculations=None,
+        create_PCE_custom=None,
+        custom_uncertainty_quantification=None,
+        CPUs="max",
+        logger_level="info",
+        logger_filename="uncertainpy.log",
+        backend="auto",
+    ):
         if backend not in ["auto", "hdf5", "exdir"]:
-            raise ValueError("backend {} not supported. Supported backends are: auto, hdf5, and exdir".format(backend))
-
+            raise ValueError(
+                "backend {} not supported. Supported backends are: auto, hdf5, and exdir".format(
+                    backend
+                )
+            )
 
         logger = get_logger(self)
 
         if platform.system().lower() == "windows":
-            logger.info("On Windows machines everything in your script must be "
-                        "inside of an if __name__ == '__main__': block in order "
-                        "for multiprocess to work." )
+            logger.info(
+                "On Windows machines everything in your script must be "
+                "inside of an if __name__ == '__main__': block in order "
+                "for multiprocess to work."
+            )
 
         if uncertainty_calculations is None:
             self._uncertainty_calculations = UncertaintyCalculations(
@@ -139,20 +145,19 @@ class UncertaintyQuantification(ParameterBase):
         else:
             self._uncertainty_calculations = uncertainty_calculations
 
-        super(UncertaintyQuantification, self).__init__(parameters=parameters,
-                                                        model=model,
-                                                        features=features,
-                                                        logger_level=logger_level)
-
+        super(UncertaintyQuantification, self).__init__(
+            parameters=parameters,
+            model=model,
+            features=features,
+            logger_level=logger_level,
+        )
 
         self.data = None
         self.backend = backend
 
-        self.plotting = PlotUncertainty(folder=None,
-                                        logger_level=logger_level)
+        self.plotting = PlotUncertainty(folder=None, logger_level=logger_level)
 
         add_file_handler(filename=logger_filename)
-
 
     @ParameterBase.features.setter
     def features(self, new_features):
@@ -160,20 +165,17 @@ class UncertaintyQuantification(ParameterBase):
 
         self.uncertainty_calculations.features = self.features
 
-
     @ParameterBase.model.setter
     def model(self, new_model):
         ParameterBase.model.fset(self, new_model)
 
         self.uncertainty_calculations.model = self.model
 
-
     @ParameterBase.parameters.setter
     def parameters(self, new_parameters):
         ParameterBase.parameters.fset(self, new_parameters)
 
         self.uncertainty_calculations.parameters = self.parameters
-
 
     @property
     def uncertainty_calculations(self):
@@ -199,7 +201,6 @@ class UncertaintyQuantification(ParameterBase):
         """
         return self._uncertainty_calculations
 
-
     @uncertainty_calculations.setter
     def uncertainty_calculations(self, new_uncertainty_calculations):
         self._uncertainty_calculations = new_uncertainty_calculations
@@ -207,28 +208,29 @@ class UncertaintyQuantification(ParameterBase):
         self.uncertainty_calculations.features = self.features
         self.uncertainty_calculations.model = self.model
 
-
     # TODO add features_to_run as argument to this function
-    def quantify(self,
-                 method="pc",
-                 pc_method="collocation",
-                 rosenblatt="auto",
-                 uncertain_parameters=None,
-                 polynomial_order=4,
-                 nr_collocation_nodes=None,
-                 quadrature_order=None,
-                 nr_pc_mc_samples=10**4,
-                 nr_mc_samples=10**4,
-                 allow_incomplete=True,
-                 seed=None,
-                 single=False,
-                 plot="condensed_first",
-                 figure_folder="figures",
-                 figureformat=".png",
-                 save=True,
-                 data_folder="data",
-                 filename=None,
-                 **custom_kwargs):
+    def quantify(
+        self,
+        method="pc",
+        pc_method="collocation",
+        rosenblatt="auto",
+        uncertain_parameters=None,
+        polynomial_order=4,
+        nr_collocation_nodes=None,
+        quadrature_order=None,
+        nr_pc_mc_samples=10**4,
+        nr_mc_samples=10**4,
+        allow_incomplete=True,
+        seed=None,
+        single=False,
+        plot="condensed_first",
+        figure_folder="figures",
+        figureformat=".png",
+        save=True,
+        data_folder="data",
+        filename=None,
+        **custom_kwargs
+    ):
         """
         Perform an uncertainty quantification and sensitivity analysis
         using polynomial chaos expansions or quasi-Monte Carlo methods.
@@ -390,93 +392,106 @@ class UncertaintyQuantification(ParameterBase):
         uncertainpy.core.UncertaintyCalculations.create_PCE_custom : Requirements for create_PCE_custom
         uncertainpy.core.UncertaintyCalculations.custom_uncertainty_quantification : Requirements for custom_uncertainty_quantification
         """
-        uncertain_parameters = self.uncertainty_calculations.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = (
+            self.uncertainty_calculations.convert_uncertain_parameters(
+                uncertain_parameters
+            )
+        )
 
         if method.lower() == "pc":
             if single:
-                data = self.polynomial_chaos_single(uncertain_parameters=uncertain_parameters,
-                                                    method=pc_method,
-                                                    rosenblatt=rosenblatt,
-                                                    polynomial_order=polynomial_order,
-                                                    nr_collocation_nodes=nr_collocation_nodes,
-                                                    quadrature_order=quadrature_order,
-                                                    nr_pc_mc_samples=nr_pc_mc_samples,
-                                                    allow_incomplete=allow_incomplete,
-                                                    seed=seed,
-                                                    plot=plot,
-                                                    figure_folder=figure_folder,
-                                                    figureformat=figureformat,
-                                                    save=save,
-                                                    data_folder=data_folder,
-                                                    filename=filename,
-                                                    **custom_kwargs)
+                data = self.polynomial_chaos_single(
+                    uncertain_parameters=uncertain_parameters,
+                    method=pc_method,
+                    rosenblatt=rosenblatt,
+                    polynomial_order=polynomial_order,
+                    nr_collocation_nodes=nr_collocation_nodes,
+                    quadrature_order=quadrature_order,
+                    nr_pc_mc_samples=nr_pc_mc_samples,
+                    allow_incomplete=allow_incomplete,
+                    seed=seed,
+                    plot=plot,
+                    figure_folder=figure_folder,
+                    figureformat=figureformat,
+                    save=save,
+                    data_folder=data_folder,
+                    filename=filename,
+                    **custom_kwargs
+                )
 
             else:
-                data = self.polynomial_chaos(uncertain_parameters=uncertain_parameters,
-                                             method=pc_method,
-                                             rosenblatt=rosenblatt,
-                                             polynomial_order=polynomial_order,
-                                             nr_collocation_nodes=nr_collocation_nodes,
-                                             quadrature_order=quadrature_order,
-                                             nr_pc_mc_samples=nr_pc_mc_samples,
-                                             allow_incomplete=allow_incomplete,
-                                             seed=seed,
-                                             plot=plot,
-                                             figure_folder=figure_folder,
-                                             figureformat=figureformat,
-                                             save=save,
-                                             data_folder=data_folder,
-                                             filename=filename,
-                                             **custom_kwargs)
+                data = self.polynomial_chaos(
+                    uncertain_parameters=uncertain_parameters,
+                    method=pc_method,
+                    rosenblatt=rosenblatt,
+                    polynomial_order=polynomial_order,
+                    nr_collocation_nodes=nr_collocation_nodes,
+                    quadrature_order=quadrature_order,
+                    nr_pc_mc_samples=nr_pc_mc_samples,
+                    allow_incomplete=allow_incomplete,
+                    seed=seed,
+                    plot=plot,
+                    figure_folder=figure_folder,
+                    figureformat=figureformat,
+                    save=save,
+                    data_folder=data_folder,
+                    filename=filename,
+                    **custom_kwargs
+                )
 
         elif method.lower() == "mc":
             if single:
-                data = self.monte_carlo_single(uncertain_parameters=uncertain_parameters,
-                                               nr_samples=nr_mc_samples,
-                                               plot=plot,
-                                               figure_folder=figure_folder,
-                                               figureformat=figureformat,
-                                               save=save,
-                                               data_folder=data_folder,
-                                               filename=filename,
-                                               seed=seed)
-
+                data = self.monte_carlo_single(
+                    uncertain_parameters=uncertain_parameters,
+                    nr_samples=nr_mc_samples,
+                    plot=plot,
+                    figure_folder=figure_folder,
+                    figureformat=figureformat,
+                    save=save,
+                    data_folder=data_folder,
+                    filename=filename,
+                    seed=seed,
+                )
 
             else:
-                data = self.monte_carlo(uncertain_parameters=uncertain_parameters,
-                                        nr_samples=nr_mc_samples,
-                                        plot=plot,
-                                        figure_folder=figure_folder,
-                                        figureformat=figureformat,
-                                        save=save,
-                                        data_folder=data_folder,
-                                        filename=filename,
-                                        seed=seed)
-
+                data = self.monte_carlo(
+                    uncertain_parameters=uncertain_parameters,
+                    nr_samples=nr_mc_samples,
+                    plot=plot,
+                    figure_folder=figure_folder,
+                    figureformat=figureformat,
+                    save=save,
+                    data_folder=data_folder,
+                    filename=filename,
+                    seed=seed,
+                )
 
         elif method.lower() == "custom":
-            data = self.custom_uncertainty_quantification(plot=plot,
-                                                          figure_folder=figure_folder,
-                                                          figureformat=figureformat,
-                                                          save=save,
-                                                          data_folder=data_folder,
-                                                          filename=filename,
-                                                          **custom_kwargs)
+            data = self.custom_uncertainty_quantification(
+                plot=plot,
+                figure_folder=figure_folder,
+                figureformat=figureformat,
+                save=save,
+                data_folder=data_folder,
+                filename=filename,
+                **custom_kwargs
+            )
 
         else:
             raise ValueError("No method with name {}".format(method))
 
         return data
 
-
-    def custom_uncertainty_quantification(self,
-                                          plot="condensed_first",
-                                          figure_folder="figures",
-                                          figureformat=".png",
-                                          save=True,
-                                          data_folder="data",
-                                          filename=None,
-                                          **custom_kwargs):
+    def custom_uncertainty_quantification(
+        self,
+        plot="condensed_first",
+        figure_folder="figures",
+        figureformat=".png",
+        save=True,
+        data_folder="data",
+        filename=None,
+        **custom_kwargs
+    ):
         """
         Perform a custom  uncertainty quantification and sensitivity analysis,
         implemented by the user.
@@ -533,10 +548,11 @@ class UncertaintyQuantification(ParameterBase):
         uncertainpy.core.UncertaintyCalculations.custom_uncertainty_quantification : Requirements for custom_uncertainty_quantification
         """
 
-        self.data = self.uncertainty_calculations.custom_uncertainty_quantification(**custom_kwargs)
+        self.data = self.uncertainty_calculations.custom_uncertainty_quantification(
+            **custom_kwargs
+        )
 
         self.data.backend = self.backend
-
 
         if filename is None:
             filename = self.model.name
@@ -544,30 +560,29 @@ class UncertaintyQuantification(ParameterBase):
         if save:
             self.save(filename, folder=data_folder)
 
-        self.plot(type=plot,
-                  folder=figure_folder,
-                  figureformat=figureformat)
+        self.plot(type=plot, folder=figure_folder, figureformat=figureformat)
 
         return self.data
 
-
-    def polynomial_chaos(self,
-                         method="collocation",
-                         rosenblatt="auto",
-                         uncertain_parameters=None,
-                         polynomial_order=4,
-                         nr_collocation_nodes=None,
-                         quadrature_order=None,
-                         nr_pc_mc_samples=10**4,
-                         allow_incomplete=True,
-                         seed=None,
-                         plot="condensed_first",
-                         figure_folder="figures",
-                         figureformat=".png",
-                         save=True,
-                         data_folder="data",
-                         filename=None,
-                         **custom_kwargs):
+    def polynomial_chaos(
+        self,
+        method="collocation",
+        rosenblatt="auto",
+        uncertain_parameters=None,
+        polynomial_order=4,
+        nr_collocation_nodes=None,
+        quadrature_order=None,
+        nr_pc_mc_samples=10**4,
+        allow_incomplete=True,
+        seed=None,
+        plot="condensed_first",
+        figure_folder="figures",
+        figureformat=".png",
+        save=True,
+        data_folder="data",
+        filename=None,
+        **custom_kwargs
+    ):
         """
         Perform an uncertainty quantification and sensitivity analysis
         using polynomial chaos expansions.
@@ -692,12 +707,17 @@ class UncertaintyQuantification(ParameterBase):
         uncertainpy.core.UncertaintyCalculations.polynomial_chaos : Uncertainty quantification using polynomial chaos expansions
         uncertainpy.core.UncertaintyCalculations.create_PCE_custom : Requirements for create_PCE_custom
         """
-        uncertain_parameters = self.uncertainty_calculations.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = (
+            self.uncertainty_calculations.convert_uncertain_parameters(
+                uncertain_parameters
+            )
+        )
 
         if len(uncertain_parameters) > 20:
-            raise RuntimeWarning("The number of uncertain parameters is high."
-                                 + "The Monte-Carlo method might be faster.")
-
+            raise RuntimeWarning(
+                "The number of uncertain parameters is high."
+                + "The Monte-Carlo method might be faster."
+            )
 
         self.data = self.uncertainty_calculations.polynomial_chaos(
             method=method,
@@ -710,7 +730,7 @@ class UncertaintyQuantification(ParameterBase):
             allow_incomplete=allow_incomplete,
             seed=seed,
             **custom_kwargs
-            )
+        )
 
         self.data.backend = self.backend
 
@@ -720,23 +740,22 @@ class UncertaintyQuantification(ParameterBase):
         if save:
             self.save(filename, folder=data_folder)
 
-        self.plot(type=plot,
-                  folder=figure_folder,
-                  figureformat=figureformat)
+        self.plot(type=plot, folder=figure_folder, figureformat=figureformat)
 
         return self.data
 
-
-    def monte_carlo(self,
-                    uncertain_parameters=None,
-                    nr_samples=10**4,
-                    seed=None,
-                    plot="condensed_first",
-                    figure_folder="figures",
-                    figureformat=".png",
-                    save=True,
-                    data_folder="data",
-                    filename=None):
+    def monte_carlo(
+        self,
+        uncertain_parameters=None,
+        nr_samples=10**4,
+        seed=None,
+        plot="condensed_first",
+        figure_folder="figures",
+        figureformat=".png",
+        save=True,
+        data_folder="data",
+        filename=None,
+    ):
         """
         Perform an uncertainty quantification using the quasi-Monte Carlo method.
 
@@ -827,44 +846,48 @@ class UncertaintyQuantification(ParameterBase):
         uncertainpy.plotting.PlotUncertainty
         uncertainpy.core.UncertaintyCalculations.monte_carlo : Uncertainty quantification using quasi-Monte Carlo methods
         """
-        uncertain_parameters = self.uncertainty_calculations.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = (
+            self.uncertainty_calculations.convert_uncertain_parameters(
+                uncertain_parameters
+            )
+        )
 
-
-        self.data = self.uncertainty_calculations.monte_carlo(uncertain_parameters=uncertain_parameters,
-                                                              nr_samples=nr_samples,
-                                                              seed=seed)
+        self.data = self.uncertainty_calculations.monte_carlo(
+            uncertain_parameters=uncertain_parameters,
+            nr_samples=nr_samples,
+            seed=seed,
+        )
 
         self.data.backend = self.backend
 
         if filename is None:
-           filename = self.model.name
+            filename = self.model.name
 
         if save:
             self.save(filename, folder=data_folder)
 
-        self.plot(type=plot,
-                  folder=figure_folder,
-                  figureformat=figureformat)
+        self.plot(type=plot, folder=figure_folder, figureformat=figureformat)
 
         return self.data
 
-
-    def polynomial_chaos_single(self,
-                                method="collocation",
-                                rosenblatt="auto",
-                                polynomial_order=4,
-                                uncertain_parameters=None,
-                                nr_collocation_nodes=None,
-                                quadrature_order=None,
-                                nr_pc_mc_samples=10**4,
-                                allow_incomplete=True,
-                                seed=None,
-                                plot="condensed_first",
-                                figure_folder="figures",
-                                figureformat=".png",
-                                save=True,
-                                data_folder="data",
-                                filename=None):
+    def polynomial_chaos_single(
+        self,
+        method="collocation",
+        rosenblatt="auto",
+        polynomial_order=4,
+        uncertain_parameters=None,
+        nr_collocation_nodes=None,
+        quadrature_order=None,
+        nr_pc_mc_samples=10**4,
+        allow_incomplete=True,
+        seed=None,
+        plot="condensed_first",
+        figure_folder="figures",
+        figureformat=".png",
+        save=True,
+        data_folder="data",
+        filename=None,
+    ):
         """
         Perform an uncertainty quantification and sensitivity analysis for a
         single parameter at the time using polynomial chaos expansions.
@@ -991,11 +1014,17 @@ class UncertaintyQuantification(ParameterBase):
         """
         logger = get_logger(self)
 
-        uncertain_parameters = self.uncertainty_calculations.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = (
+            self.uncertainty_calculations.convert_uncertain_parameters(
+                uncertain_parameters
+            )
+        )
 
         for parameter in self.parameters:
             if parameter.value is None:
-                raise ValueError("Parameter.value must be set for each parameter when using single=True.")
+                raise ValueError(
+                    "Parameter.value must be set for each parameter when using single=True."
+                )
 
         if filename is None:
             filename = self.model.name
@@ -1030,23 +1059,22 @@ class UncertaintyQuantification(ParameterBase):
         if save:
             self.save(filename, folder=data_folder)
 
-        self.plot(type=plot,
-                  folder=figure_folder,
-                  figureformat=figureformat)
+        self.plot(type=plot, folder=figure_folder, figureformat=figureformat)
 
         return data_dict
 
-
-    def monte_carlo_single(self,
-                           uncertain_parameters=None,
-                           nr_samples=10**4,
-                           seed=None,
-                           plot="condensed_first",
-                           save=True,
-                           data_folder="data",
-                           figure_folder="figures",
-                           figureformat=".png",
-                           filename=None):
+    def monte_carlo_single(
+        self,
+        uncertain_parameters=None,
+        nr_samples=10**4,
+        seed=None,
+        plot="condensed_first",
+        save=True,
+        data_folder="data",
+        figure_folder="figures",
+        figureformat=".png",
+        filename=None,
+    ):
         """
         Perform an uncertainty quantification for a single parameter at the time
         using the quasi-Monte Carlo method.
@@ -1139,7 +1167,11 @@ class UncertaintyQuantification(ParameterBase):
         """
         logger = get_logger(self)
 
-        uncertain_parameters = self.uncertainty_calculations.convert_uncertain_parameters(uncertain_parameters)
+        uncertain_parameters = (
+            self.uncertainty_calculations.convert_uncertain_parameters(
+                uncertain_parameters
+            )
+        )
 
         if filename is None:
             filename = self.model.name
@@ -1151,8 +1183,9 @@ class UncertaintyQuantification(ParameterBase):
         for uncertain_parameter in uncertain_parameters:
             logger.info("Running MC for " + uncertain_parameter)
 
-            data = self.uncertainty_calculations.monte_carlo(uncertain_parameters=uncertain_parameter,
-                                                                  nr_samples=nr_samples)
+            data = self.uncertainty_calculations.monte_carlo(
+                uncertain_parameters=uncertain_parameter, nr_samples=nr_samples
+            )
 
             data.backend = self.backend
             data.seed = seed
@@ -1164,12 +1197,9 @@ class UncertaintyQuantification(ParameterBase):
         if save:
             self.save(filename, folder=data_folder)
 
-        self.plot(type=plot,
-                  folder=figure_folder,
-                  figureformat=figureformat)
+        self.plot(type=plot, folder=figure_folder, figureformat=figureformat)
 
         return data_dict
-
 
     def save(self, filename, folder="data"):
         """
@@ -1204,7 +1234,7 @@ class UncertaintyQuantification(ParameterBase):
                 fileextension = ".h5"
 
         elif self.backend == "hdf5":
-            fileextension =  ".h5"
+            fileextension = ".h5"
             filename = filename.strip(".h5")
         elif self.backend == "exdir":
             fileextension = ".exdir"
@@ -1213,10 +1243,7 @@ class UncertaintyQuantification(ParameterBase):
         # To save dict of single parameter runs
         if isinstance(self.data, dict):
             for uncertain_parameter in self.data:
-                tmp_filename = "{}_{}".format(
-                    filename,
-                    uncertain_parameter
-                )
+                tmp_filename = "{}_{}".format(filename, uncertain_parameter)
 
                 save_path = os.path.join(folder, tmp_filename + fileextension)
 
@@ -1230,9 +1257,6 @@ class UncertaintyQuantification(ParameterBase):
             logger.info("Saving data as: {}".format(save_path))
 
             self.data.save(save_path)
-
-
-
 
     def load(self, filename):
         """
@@ -1249,11 +1273,7 @@ class UncertaintyQuantification(ParameterBase):
         """
         self.data = Data(filename)
 
-
-    def plot(self,
-             type="condensed_first",
-             folder="figures",
-             figureformat=".png"):
+    def plot(self, type="condensed_first", folder="figures", figureformat=".png"):
         """
         Create plots for the results of the uncertainty quantification and
         sensitivity analysis. ``self.data`` must exist and contain the results.
@@ -1307,10 +1327,11 @@ class UncertaintyQuantification(ParameterBase):
                 self.plotting.all_evaluations()
 
             else:
-                raise ValueError('type must one of: "condensed_first", '
-                                 '"condensed_total", "condensed_no_sensitivity" '
-                                 '"all", "evaluations", None, not {}'.format(type))
-
+                raise ValueError(
+                    'type must one of: "condensed_first", '
+                    '"condensed_total", "condensed_no_sensitivity" '
+                    '"all", "evaluations", None, not {}'.format(type)
+                )
 
         if type is None:
             return
@@ -1332,4 +1353,3 @@ class UncertaintyQuantification(ParameterBase):
                 self.plotting.data = self.data
 
                 plot(type)
-

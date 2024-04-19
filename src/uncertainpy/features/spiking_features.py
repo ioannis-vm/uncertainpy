@@ -14,6 +14,7 @@ from .general_spiking_features import GeneralSpikingFeatures
 from .spikes import Spikes
 from ..utils.logger import get_logger
 
+
 class SpikingFeatures(GeneralSpikingFeatures):
     """
     Spiking features of a model result, works with single neuron models and
@@ -152,49 +153,53 @@ class SpikingFeatures(GeneralSpikingFeatures):
     uncertainpy.features.Features.reference_feature : reference_feature showing the requirements of a feature function.
     uncertainpy.features.Spikes : Class for finding spikes in the model result.
     """
-    def __init__(self,
-                 new_features=None,
-                 features_to_run="all",
-                 interpolate=None,
-                 threshold=-30,
-                 end_threshold=-10,
-                 extended_spikes=False,
-                 trim=True,
-                 normalize=False,
-                 min_amplitude=0,
-                 min_duration=0,
-                 labels={},
-                 strict=True,
-                 logger_level="info"):
 
+    def __init__(
+        self,
+        new_features=None,
+        features_to_run="all",
+        interpolate=None,
+        threshold=-30,
+        end_threshold=-10,
+        extended_spikes=False,
+        trim=True,
+        normalize=False,
+        min_amplitude=0,
+        min_duration=0,
+        labels={},
+        strict=True,
+        logger_level="info",
+    ):
         if not prerequisites:
             raise ImportError("Spiking features require: scipy")
 
-        implemented_labels = {"nr_spikes": ["Number of spikes"],
-                              "spike_rate": ["Spike rate (1/ms)"],
-                              "time_before_first_spike": ["Time (ms)"],
-                              "accommodation_index": ["Accommodation index"],
-                              "average_AP_overshoot": ["Voltage (mV)"],
-                              "average_AHP_depth": ["Voltage (mV)"],
-                              "average_AP_width": ["Time (ms)"],
-                              "average_duration": ["Time (ms)"]
-                             }
+        implemented_labels = {
+            "nr_spikes": ["Number of spikes"],
+            "spike_rate": ["Spike rate (1/ms)"],
+            "time_before_first_spike": ["Time (ms)"],
+            "accommodation_index": ["Accommodation index"],
+            "average_AP_overshoot": ["Voltage (mV)"],
+            "average_AHP_depth": ["Voltage (mV)"],
+            "average_AP_width": ["Time (ms)"],
+            "average_duration": ["Time (ms)"],
+        }
 
-        super(SpikingFeatures, self).__init__(new_features=new_features,
-                                              features_to_run=features_to_run,
-                                              interpolate=interpolate,
-                                              threshold=threshold,
-                                              end_threshold=end_threshold,
-                                              extended_spikes=extended_spikes,
-                                              trim=trim,
-                                              normalize=normalize,
-                                              min_amplitude=min_amplitude,
-                                              min_duration=min_duration,
-                                              labels=implemented_labels,
-                                              logger_level=logger_level)
+        super(SpikingFeatures, self).__init__(
+            new_features=new_features,
+            features_to_run=features_to_run,
+            interpolate=interpolate,
+            threshold=threshold,
+            end_threshold=end_threshold,
+            extended_spikes=extended_spikes,
+            trim=trim,
+            normalize=normalize,
+            min_amplitude=min_amplitude,
+            min_duration=min_duration,
+            labels=implemented_labels,
+            logger_level=logger_level,
+        )
         self.labels = labels
         self.strict = strict
-
 
     def nr_spikes(self, time, spikes, info):
         """
@@ -228,28 +233,35 @@ class SpikingFeatures(GeneralSpikingFeatures):
 
         if "stimulus_start" not in info:
             if self.strict:
-                raise ValueError("nr_spikes require info['stimulus_start']. "
-                                 "No 'stimulus_start' found in info, "
-                                 "Set 'stimulus_start', or set strict to "
-                                 "False to use initial time as stimulus start")
+                raise ValueError(
+                    "nr_spikes require info['stimulus_start']. "
+                    "No 'stimulus_start' found in info, "
+                    "Set 'stimulus_start', or set strict to "
+                    "False to use initial time as stimulus start"
+                )
             else:
                 info["stimulus_start"] = time[0]
-                logger.warning("nr_spikes features require info['stimulus_start']. "
-                               "No 'stimulus_start' found in info, "
-                               "setting stimulus start as initial time")
-
+                logger.warning(
+                    "nr_spikes features require info['stimulus_start']. "
+                    "No 'stimulus_start' found in info, "
+                    "setting stimulus start as initial time"
+                )
 
         if "stimulus_end" not in info:
             if self.strict:
-                raise ValueError("nr_spikes require info['stimulus_end']. "
-                                 "No 'stimulus_end' found in info, "
-                                 "Set 'stimulus_start', or set strict to "
-                                 "False to use end time as stimulus end")
+                raise ValueError(
+                    "nr_spikes require info['stimulus_end']. "
+                    "No 'stimulus_end' found in info, "
+                    "Set 'stimulus_start', or set strict to "
+                    "False to use end time as stimulus end"
+                )
             else:
                 info["stimulus_end"] = time[-1]
-                logger.warning("nr_spikes require info['stimulus_start']. "
-                               "No 'stimulus_end' found in info, "
-                               "setting stimulus end as end time")
+                logger.warning(
+                    "nr_spikes require info['stimulus_start']. "
+                    "No 'stimulus_end' found in info, "
+                    "setting stimulus end as end time"
+                )
 
         if info["stimulus_start"] >= info["stimulus_end"]:
             raise ValueError("stimulus_start >= stimulus_end.")
@@ -260,7 +272,6 @@ class SpikingFeatures(GeneralSpikingFeatures):
                 nr_spikes += 1
 
         return None, nr_spikes
-
 
     def time_before_first_spike(self, time, spikes, info):
         """
@@ -292,16 +303,19 @@ class SpikingFeatures(GeneralSpikingFeatures):
 
         if "stimulus_start" not in info:
             if self.strict:
-                raise ValueError("time_before_first_spike require info['stimulus_start']. "
-                                 "No 'stimulus_start' found in info, "
-                                 "Set 'stimulus_start', or set strict to "
-                                 "False to use initial time as stimulus start")
+                raise ValueError(
+                    "time_before_first_spike require info['stimulus_start']. "
+                    "No 'stimulus_start' found in info, "
+                    "Set 'stimulus_start', or set strict to "
+                    "False to use initial time as stimulus start"
+                )
             else:
                 info["stimulus_start"] = time[0]
-                logger.warning("time_before_first_spike features require info['stimulus_start']. "
-                               "No 'stimulus_start' found in info, "
-                               "setting stimulus start as initial time")
-
+                logger.warning(
+                    "time_before_first_spike features require info['stimulus_start']. "
+                    "No 'stimulus_start' found in info, "
+                    "setting stimulus start as initial time"
+                )
 
         if spikes.nr_spikes <= 0:
             return None, None
@@ -309,7 +323,6 @@ class SpikingFeatures(GeneralSpikingFeatures):
         time = spikes.spikes[0].time_spike - info["stimulus_start"]
 
         return None, time
-
 
     def spike_rate(self, time, spikes, info):
         """
@@ -345,28 +358,35 @@ class SpikingFeatures(GeneralSpikingFeatures):
 
         if "stimulus_start" not in info:
             if self.strict:
-                raise ValueError("spike_rate require info['stimulus_start']. "
-                                 "No 'stimulus_start' found in info, "
-                                 "Set 'stimulus_start', or set strict to "
-                                 "False to use initial time as stimulus start")
+                raise ValueError(
+                    "spike_rate require info['stimulus_start']. "
+                    "No 'stimulus_start' found in info, "
+                    "Set 'stimulus_start', or set strict to "
+                    "False to use initial time as stimulus start"
+                )
             else:
                 info["stimulus_start"] = time[0]
-                logger.warning("spike_rate features require info['stimulus_start']. "
-                               "No 'stimulus_start' found in info, "
-                               "setting stimulus start as initial time")
-
+                logger.warning(
+                    "spike_rate features require info['stimulus_start']. "
+                    "No 'stimulus_start' found in info, "
+                    "setting stimulus start as initial time"
+                )
 
         if "stimulus_end" not in info:
             if self.strict:
-                raise ValueError("spike_rate require info['stimulus_end']. "
-                                 "No 'stimulus_end' found in info, "
-                                 "Set 'stimulus_start', or set strict to "
-                                 "False to use end time as stimulus end")
+                raise ValueError(
+                    "spike_rate require info['stimulus_end']. "
+                    "No 'stimulus_end' found in info, "
+                    "Set 'stimulus_start', or set strict to "
+                    "False to use end time as stimulus end"
+                )
             else:
                 info["stimulus_end"] = time[-1]
-                logger.warning("spike_rate require info['stimulus_start']. "
-                               "No 'stimulus_end' found in info, "
-                               "setting stimulus end as end time")
+                logger.warning(
+                    "spike_rate require info['stimulus_start']. "
+                    "No 'stimulus_end' found in info, "
+                    "setting stimulus end as end time"
+                )
 
         if info["stimulus_start"] >= info["stimulus_end"]:
             raise ValueError("stimulus_start >= stimulus_end.")
@@ -374,8 +394,9 @@ class SpikingFeatures(GeneralSpikingFeatures):
         if spikes.nr_spikes < 0:
             return None, None
 
-        return None, spikes.nr_spikes/float(info["stimulus_end"] - info["stimulus_start"])
-
+        return None, spikes.nr_spikes / float(
+            info["stimulus_end"] - info["stimulus_start"]
+        )
 
     def average_AP_overshoot(self, time, spikes, info):
         """
@@ -408,8 +429,7 @@ class SpikingFeatures(GeneralSpikingFeatures):
         for spike in spikes:
             sum_AP_overshoot += spike.V_spike
 
-        return None, sum_AP_overshoot/float(spikes.nr_spikes)
-
+        return None, sum_AP_overshoot / float(spikes.nr_spikes)
 
     def average_AHP_depth(self, time, spikes, info):
         """
@@ -435,16 +455,16 @@ class SpikingFeatures(GeneralSpikingFeatures):
             no spikes in the model result.
         """
 
-
         if spikes.nr_spikes <= 2:
             return None, None
 
         sum_AHP_depth = 0
         for i in range(spikes.nr_spikes - 1):
-            sum_AHP_depth += min(self.values[spikes[i].global_index:spikes[i+1].global_index])
+            sum_AHP_depth += min(
+                self.values[spikes[i].global_index : spikes[i + 1].global_index]
+            )
 
-        return None, sum_AHP_depth/float(spikes.nr_spikes)
-
+        return None, sum_AHP_depth / float(spikes.nr_spikes)
 
     def average_AP_width(self, time, spikes, info):
         """
@@ -477,28 +497,34 @@ class SpikingFeatures(GeneralSpikingFeatures):
         sum_AP_width = 0
         for spike in spikes:
             if len(spike.V) < 3:
-                logger.warning("Spike with no width found (only one or two time points in spike).")
+                logger.warning(
+                    "Spike with no width found (only one or two time points in spike)."
+                )
                 continue
 
-            V_width = (spike.V_spike + spike.V[0])/2.
+            V_width = (spike.V_spike + spike.V[0]) / 2.0
 
-            V_interpolation = scipy.interpolate.interp1d(spike.time, spike.V - V_width)
+            V_interpolation = scipy.interpolate.interp1d(
+                spike.time, spike.V - V_width
+            )
 
             # root1 = scipy.optimize.fsolve(U_interpolation, (spike.t_spike - spike.t[0])/2. + spike.t[0])
             # root2 = scipy.optimize.fsolve(U_interpolation, (spike.t[-1] - spike.t_spike)/2. + spike.t_spike)
 
             try:
-                root1 = scipy.optimize.brentq(V_interpolation, spike.time[0], spike.time_spike)
-                root2 = scipy.optimize.brentq(V_interpolation, spike.time_spike, spike.time[-1])
+                root1 = scipy.optimize.brentq(
+                    V_interpolation, spike.time[0], spike.time_spike
+                )
+                root2 = scipy.optimize.brentq(
+                    V_interpolation, spike.time_spike, spike.time[-1]
+                )
 
             except ValueError:
                 return None, None
 
-
             sum_AP_width += abs(root2 - root1)
 
-        return None, sum_AP_width/float(spikes.nr_spikes)
-
+        return None, sum_AP_width / float(spikes.nr_spikes)
 
     def average_duration(self, time, spikes, info):
         """
@@ -530,8 +556,6 @@ class SpikingFeatures(GeneralSpikingFeatures):
             durations.append(spike.time[-1] - spike.time[0])
 
         return None, np.mean(durations)
-
-
 
     def accommodation_index(self, time, spikes, info):
         r"""
@@ -576,14 +600,14 @@ class SpikingFeatures(GeneralSpikingFeatures):
         if N <= 1:
             return None, None
 
-        k = min(4, int(round(N-1)/5.))
+        k = min(4, int(round(N - 1) / 5.0))
 
         ISIs = []
-        for i in range(N-1):
-            ISIs.append(spikes[i+1].time_spike - spikes[i].time_spike)
+        for i in range(N - 1):
+            ISIs.append(spikes[i + 1].time_spike - spikes[i].time_spike)
 
         A = 0
-        for i in range(k+1, N-1):
-            A += (ISIs[i] - ISIs[i-1])/(ISIs[i] + ISIs[i-1])
+        for i in range(k + 1, N - 1):
+            A += (ISIs[i] - ISIs[i - 1]) / (ISIs[i] + ISIs[i - 1])
 
-        return None, A/(N - k - 1)
+        return None, A / (N - k - 1)

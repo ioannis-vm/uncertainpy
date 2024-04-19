@@ -5,6 +5,7 @@ try:
 except ImportError:
     nest_prerequisite = False
 
+
 def brunel_network(eta, g, delay, J):
     """
     A brunel network, from:
@@ -38,64 +39,66 @@ def brunel_network(eta, g, delay, J):
 
     # Reduced number of neurons and simulation time
     # Network parameters
-    N_rec = 20             # Record from 20 neurons
-    simulation_end = 100   # Simulation time
+    N_rec = 20  # Record from 20 neurons
+    simulation_end = 100  # Simulation time
 
-    tau_m = 20.0           # Time constant of membrane potential in ms
+    tau_m = 20.0  # Time constant of membrane potential in ms
     V_th = 20.0
-    N_E = 1000             # Number of inhibitory neurons
-    N_I = 250              # Number of excitatory neurons
+    N_E = 1000  # Number of inhibitory neurons
+    N_I = 250  # Number of excitatory neurons
     N_neurons = N_E + N_I  # Number of neurons in total
-    C_E = int(N_E/10)      # Number of excitatory synapses per neuron
-    C_I = int(N_I/10)      # Number of inhibitory synapses per neuron
-    J_I = -g*J           # Amplitude of inhibitory postsynaptic current
+    C_E = int(N_E / 10)  # Number of excitatory synapses per neuron
+    C_I = int(N_I / 10)  # Number of inhibitory synapses per neuron
+    J_I = -g * J  # Amplitude of inhibitory postsynaptic current
 
-    nu_ex = eta*V_th/(J*C_E*tau_m)
-    p_rate = 1000.0*nu_ex*C_E
+    nu_ex = eta * V_th / (J * C_E * tau_m)
+    p_rate = 1000.0 * nu_ex * C_E
 
     nest.ResetKernel()
 
     # Configure kernel
     nest.SetKernelStatus({"grng_seed": 10})
 
-    nest.SetDefaults('iaf_psc_delta',
-                     {'C_m': 1.0,
-                      'tau_m': tau_m,
-                      't_ref': 2.0,
-                      'E_L': 0.0,
-                      'V_th': V_th,
-                      'V_reset': 10.0})
-
+    nest.SetDefaults(
+        'iaf_psc_delta',
+        {
+            'C_m': 1.0,
+            'tau_m': tau_m,
+            't_ref': 2.0,
+            'E_L': 0.0,
+            'V_th': V_th,
+            'V_reset': 10.0,
+        },
+    )
 
     # Create neurons
-    nodes   = nest.Create('iaf_psc_delta', N_neurons)
+    nodes = nest.Create('iaf_psc_delta', N_neurons)
     nodes_E = nodes[:N_E]
     nodes_I = nodes[N_E:]
 
-    noise = nest.Create('poisson_generator',1,{'rate': p_rate})
+    noise = nest.Create('poisson_generator', 1, {'rate': p_rate})
 
-    spikes = nest.Create('spike_detector',2,
-                         [{'label': 'brunel-py-ex'},
-                          {'label': 'brunel-py-in'}])
+    spikes = nest.Create(
+        'spike_detector', 2, [{'label': 'brunel-py-ex'}, {'label': 'brunel-py-in'}]
+    )
     spikes_E = spikes[:1]
     spikes_I = spikes[1:]
 
-
     # Connect neurons to each other
-    nest.CopyModel('static_synapse_hom_w', 'excitatory',
-                   {'weight':J, 'delay':delay})
+    nest.CopyModel(
+        'static_synapse_hom_w', 'excitatory', {'weight': J, 'delay': delay}
+    )
 
-    nest.Connect(nodes_E, nodes,
-                 {'rule': 'fixed_indegree', 'indegree': C_E},
-                 'excitatory')
+    nest.Connect(
+        nodes_E, nodes, {'rule': 'fixed_indegree', 'indegree': C_E}, 'excitatory'
+    )
 
-    nest.CopyModel('static_synapse_hom_w', 'inhibitory',
-                   {'weight': J_I, 'delay': delay})
-    nest.Connect(nodes_I, nodes,
-                {'rule': 'fixed_indegree', 'indegree': C_I},
-                 'inhibitory')
-
-
+    nest.CopyModel(
+        'static_synapse_hom_w', 'inhibitory', {'weight': J_I, 'delay': delay}
+    )
+    nest.Connect(
+        nodes_I, nodes, {'rule': 'fixed_indegree', 'indegree': C_I}, 'inhibitory'
+    )
 
     # Connect poisson generator to all nodes
     nest.Connect(noise, nodes, syn_spec='excitatory')
@@ -103,14 +106,11 @@ def brunel_network(eta, g, delay, J):
     nest.Connect(nodes_E[:N_rec], spikes_E)
     nest.Connect(nodes_I[:N_rec], spikes_I)
 
-
     # Run the simulation
     nest.Simulate(simulation_end)
 
-
     events_E = nest.GetStatus(spikes_E, 'events')[0]
     events_I = nest.GetStatus(spikes_I, 'events')[0]
-
 
     # Excitatory spike trains
     # Makes sure the spiketrain is added even if there are no results

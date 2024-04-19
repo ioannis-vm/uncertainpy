@@ -12,14 +12,16 @@ spiking behavour (for example models of neurons that contain voltage traces),
 and ``NetworkFeatures`` for network models that return spiketrains.
 """
 
-__all__ = ["Features",
-           "GeneralSpikingFeatures",
-           "SpikingFeatures",
-           "Spike",
-           "Spikes",
-           "NetworkFeatures",
-           "GeneralNetworkFeatures",
-           "EfelFeatures"]
+__all__ = [
+    "Features",
+    "GeneralSpikingFeatures",
+    "SpikingFeatures",
+    "Spike",
+    "Spikes",
+    "NetworkFeatures",
+    "GeneralNetworkFeatures",
+    "EfelFeatures",
+]
 
 from .features import Features
 from .general_spiking_features import GeneralSpikingFeatures

@@ -1,10 +1,23 @@
 from .test_distribution import TestDistribution
-from .test_features import TestFeatures, TestGeneralSpikingFeatures, TestSpikingFeatures
-from .test_features import TestNetworkFeatures, TestTestingFeatures, TestGeneralNetworkFeatures
+from .test_features import (
+    TestFeatures,
+    TestGeneralSpikingFeatures,
+    TestSpikingFeatures,
+)
+from .test_features import (
+    TestNetworkFeatures,
+    TestTestingFeatures,
+    TestGeneralNetworkFeatures,
+)
 from .test_features import TestEfelFeatures
 from .test_logger import TestLogger
 
-from .test_models import TestModel, TestHodgkinHuxleyModel, TestCoffeeCupModel, TestNestModel
+from .test_models import (
+    TestModel,
+    TestHodgkinHuxleyModel,
+    TestCoffeeCupModel,
+    TestNestModel,
+)
 from .test_models import TestIzhikevichModel, TestTestingModel0d, TestTestingModel1d
 from .test_models import TestTestingModel2d, TestNeuronModel
 

@@ -1,18 +1,18 @@
 import uncertainpy as un
-import chaospy as cp                       # To create distributions
-import numpy as np                         # For the time array
-from scipy.integrate import odeint         # To integrate our equation
+import chaospy as cp  # To create distributions
+import numpy as np  # For the time array
+from scipy.integrate import odeint  # To integrate our equation
 
 
 # Create the coffee cup model function
 def coffee_cup(kappa, T_env):
     # Initial temperature and time array
-    time = np.linspace(0, 200, 150)            # Minutes
-    T_0 = 95                                   # Celsius
+    time = np.linspace(0, 200, 150)  # Minutes
+    T_0 = 95  # Celsius
 
     # The equation describing the model
     def f(T, time, kappa, T_env):
-        return -kappa*(T - T_env)
+        return -kappa * (T - T_env)
 
     # Solving the equation by integration
     temperature = odeint(f, T_0, time, args=(kappa, T_env))[:, 0]

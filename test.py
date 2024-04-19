@@ -4,6 +4,7 @@ import click
 import collections
 
 import matplotlib
+
 matplotlib.use('Agg')
 
 from tests import *
@@ -14,8 +15,8 @@ verbose = 1
 
 def create_test_suite_parameter(testcase, parameter=False):
     """
-Create a suite containing all tests taken from the given
-class, passing them a parameter.
+    Create a suite containing all tests taken from the given
+    class, passing them a parameter.
     """
     loader = unittest.TestLoader()
     testnames = loader.getTestCaseNames(testcase)
@@ -31,12 +32,13 @@ def to_iterable(iterable):
     return iterable
 
 
-def create_test_suite(test_classes_to_run=[], parameter_test_cases=[], parameter=None):
+def create_test_suite(
+    test_classes_to_run=[], parameter_test_cases=[], parameter=None
+):
     loader = unittest.TestLoader()
 
     test_classes_to_run = to_iterable(test_classes_to_run)
     parameter_test_cases = to_iterable(parameter_test_cases)
-
 
     suites_list = []
     for test_class in test_classes_to_run:
@@ -69,33 +71,59 @@ def run(test_cases=[], parameter_test_cases=[], parameter=None):
         sys.exit(1)
 
 
-
 testing_spikes = [TestSpike, TestSpikes]
 
-testing_features = [TestFeatures, TestGeneralSpikingFeatures, TestSpikingFeatures,
-                    TestTestingFeatures, TestNetworkFeatures, TestGeneralNetworkFeatures,
-                    TestEfelFeatures]
+testing_features = [
+    TestFeatures,
+    TestGeneralSpikingFeatures,
+    TestSpikingFeatures,
+    TestTestingFeatures,
+    TestNetworkFeatures,
+    TestGeneralNetworkFeatures,
+    TestEfelFeatures,
+]
 
 testing_base = [TestBase, TestParameterBase]
 
 testing_data = [TestData, TestDataFeature]
 
-testing_utils = [TestLogger, TestNoneToNan, TestLengths, TestContainsNoneOrNan,
-                 TestIsRegular, TestSetNan]
+testing_utils = [
+    TestLogger,
+    TestNoneToNan,
+    TestLengths,
+    TestContainsNoneOrNan,
+    TestIsRegular,
+    TestSetNan,
+]
 
 # TODO: several tests crashes when several tests with Xvfb is run one after another
-testing_models = [TestTestingModel0d, TestTestingModel1d, TestTestingModel2d,
-                  TestModel, TestHodgkinHuxleyModel, TestCoffeeCupModel,
-                  TestIzhikevichModel, TestNestModel, TestNeuronModel,
-                  TestRunModel, TestParallel]
+testing_models = [
+    TestTestingModel0d,
+    TestTestingModel1d,
+    TestTestingModel2d,
+    TestModel,
+    TestHodgkinHuxleyModel,
+    TestCoffeeCupModel,
+    TestIzhikevichModel,
+    TestNestModel,
+    TestNeuronModel,
+    TestRunModel,
+    TestParallel,
+]
 
 testing_parameters = [TestParameter, TestParameters]
 
 testing_exact = testing_spikes + [TestUncertainty, TestPlotUncertainpy]
 
-testing_all = testing_parameters + testing_models + testing_base\
-              + testing_features + testing_data + [TestUncertaintyCalculations, TestDistribution]\
-              + testing_utils
+testing_all = (
+    testing_parameters
+    + testing_models
+    + testing_base
+    + testing_features
+    + testing_data
+    + [TestUncertaintyCalculations, TestDistribution]
+    + testing_utils
+)
 
 testing_complete = testing_all + [TestExamples]
 
@@ -104,7 +132,8 @@ testing_all_no_simulators = list(testing_all)
 testing_all_no_simulators.remove(TestNestModel)
 testing_all_no_simulators.remove(TestNeuronModel)
 
-#chain=True
+
+# chain=True
 @click.group()
 @click.option('--verbosity', default=1, help="Verbosity of test runner.")
 def cli(verbosity):
@@ -118,22 +147,34 @@ def distribution():
 
 
 @cli.command()
-@click.option('--exact', default=False, is_flag=True,
-              help="Test if the plot files are exactly equal.")
+@click.option(
+    '--exact',
+    default=False,
+    is_flag=True,
+    help="Test if the plot files are exactly equal.",
+)
 def spike(exact):
     run(parameter_test_cases=TestSpike, parameter=exact)
 
 
 @cli.command()
-@click.option('--exact', default=False, is_flag=True,
-              help="Test if the plot files are exactly equal.")
+@click.option(
+    '--exact',
+    default=False,
+    is_flag=True,
+    help="Test if the plot files are exactly equal.",
+)
 def spikes(exact):
     run(parameter_test_cases=TestSpikes, parameter=exact)
 
 
 @cli.command()
-@click.option('--exact', default=False, is_flag=True,
-              help="Test if the plot files are exactly equal.")
+@click.option(
+    '--exact',
+    default=False,
+    is_flag=True,
+    help="Test if the plot files are exactly equal.",
+)
 def all_spikes(exact):
     run(parameter_test_cases=testing_spikes, parameter=exact)
 
@@ -141,6 +182,7 @@ def all_spikes(exact):
 @cli.command()
 def features():
     run(TestFeatures)
+
 
 @cli.command()
 def general_spiking_features():
@@ -173,8 +215,12 @@ def general_network_features():
 
 
 @cli.command()
-@click.option('--exact', default=False, is_flag=True,
-              help="Test if the plot files are exactly equal.")
+@click.option(
+    '--exact',
+    default=False,
+    is_flag=True,
+    help="Test if the plot files are exactly equal.",
+)
 def all_features(exact):
     run(testing_features, testing_spikes, exact)
 
@@ -192,6 +238,7 @@ def utilities():
 @cli.command()
 def uncertainty_calculations():
     run(TestUncertaintyCalculations)
+
 
 @cli.command()
 def base():
@@ -237,20 +284,30 @@ def data():
 def all_data():
     run(testing_data)
 
+
 @cli.command()
 def all_no_simulators():
     run(testing_all_no_simulators)
 
+
 @cli.command()
-@click.option('--exact', default=False, is_flag=True,
-              help="Test if the plot files are exactly equal.")
+@click.option(
+    '--exact',
+    default=False,
+    is_flag=True,
+    help="Test if the plot files are exactly equal.",
+)
 def plotting(exact):
     run(parameter_test_cases=TestPlotUncertainpy, parameter=exact)
 
 
 @cli.command()
-@click.option('--exact', default=False, is_flag=True,
-              help="Test if the plot files are exactly equal.")
+@click.option(
+    '--exact',
+    default=False,
+    is_flag=True,
+    help="Test if the plot files are exactly equal.",
+)
 def uncertainty(exact):
     run(parameter_test_cases=TestUncertainty, parameter=exact)
 
@@ -274,6 +331,7 @@ def model():
 def nest_model():
     run(TestNestModel)
 
+
 @cli.command()
 def neuron_model():
     run(TestNeuronModel)
@@ -290,19 +348,26 @@ def examples():
 
 
 @cli.command()
-@click.option('--exact', default=False, is_flag=True,
-              help="Test if the plot files are exactly equal.")
+@click.option(
+    '--exact',
+    default=False,
+    is_flag=True,
+    help="Test if the plot files are exactly equal.",
+)
 def all(exact):
     run(testing_all, testing_exact, exact)
 
 
 @cli.command()
-@click.option('--exact', default=False, is_flag=True,
-              help="Test if the plot files are exactly equal.")
+@click.option(
+    '--exact',
+    default=False,
+    is_flag=True,
+    help="Test if the plot files are exactly equal.",
+)
 def complete(exact):
     run(testing_complete, testing_exact, exact)
 
+
 if __name__ == '__main__':
     cli()
-
-

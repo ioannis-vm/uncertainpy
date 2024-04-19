@@ -107,20 +107,22 @@ class DataFeature(collections.MutableMapping):
         * ``sobol_total_average`` - the average of the total order Sobol
           indices (sensitivity) of the model/feature.
     """
-    def __init__(self,
-                 name,
-                 evaluations=None,
-                 time=None,
-                 mean=None,
-                 variance=None,
-                 percentile_5=None,
-                 percentile_95=None,
-                 sobol_first=None,
-                 sobol_first_average=None,
-                 sobol_total=None,
-                 sobol_total_average=None,
-                 labels=[]):
 
+    def __init__(
+        self,
+        name,
+        evaluations=None,
+        time=None,
+        mean=None,
+        variance=None,
+        percentile_5=None,
+        percentile_95=None,
+        sobol_first=None,
+        sobol_first_average=None,
+        sobol_total=None,
+        sobol_total_average=None,
+        labels=[],
+    ):
         self.name = name
         self.evaluations = evaluations
         self.time = time
@@ -134,10 +136,18 @@ class DataFeature(collections.MutableMapping):
         self.sobol_total_average = sobol_total_average
         self.labels = labels
 
-        self._statistical_metrics = ["evaluations", "time", "mean", "variance",
-                                     "percentile_5", "percentile_95",
-                                     "sobol_first", "sobol_first_average",
-                                     "sobol_total", "sobol_total_average"]
+        self._statistical_metrics = [
+            "evaluations",
+            "time",
+            "mean",
+            "variance",
+            "percentile_5",
+            "percentile_95",
+            "sobol_first",
+            "sobol_first_average",
+            "sobol_total",
+            "sobol_total_average",
+        ]
 
         self._information = ["name", "labels"]
 
@@ -157,7 +167,6 @@ class DataFeature(collections.MutableMapping):
         """
         return getattr(self, statistical_metric)
 
-
     def get_metrics(self):
         """
         Get the names of all statistical metrics that contain data (not None).
@@ -170,12 +179,15 @@ class DataFeature(collections.MutableMapping):
         statistical_metrics = []
 
         for statistical_metric in dir(self):
-            if not statistical_metric.startswith('_') and not callable(self[statistical_metric]) \
-                and self[statistical_metric] is not None and statistical_metric not in self._information:
+            if (
+                not statistical_metric.startswith('_')
+                and not callable(self[statistical_metric])
+                and self[statistical_metric] is not None
+                and statistical_metric not in self._information
+            ):
                 statistical_metrics.append(statistical_metric)
 
         return statistical_metrics
-
 
     def __setitem__(self, statistical_metric, data):
         """
@@ -190,7 +202,6 @@ class DataFeature(collections.MutableMapping):
         """
         setattr(self, statistical_metric, data)
 
-
     def __iter__(self):
         """
         Iterate over each statistical metric with data.
@@ -203,8 +214,6 @@ class DataFeature(collections.MutableMapping):
         for statistical_metric in self.get_metrics():
             yield statistical_metric
 
-
-
     def __delitem__(self, statistical_metric):
         """
         Delete data for `statistical_metric` (set to None).
@@ -216,7 +225,6 @@ class DataFeature(collections.MutableMapping):
         """
         setattr(self, statistical_metric, None)
 
-
     def __len__(self):
         """
         Get the number of data types with data.
@@ -227,7 +235,6 @@ class DataFeature(collections.MutableMapping):
             The number of data types with data.
         """
         return len(self.get_metrics())
-
 
     def __contains__(self, statistical_metric):
         """
@@ -243,11 +250,13 @@ class DataFeature(collections.MutableMapping):
         bool
             If `statistical_metric` exists and contains data (not None)
         """
-        if statistical_metric not in self.get_metrics() or self[statistical_metric] is None:
+        if (
+            statistical_metric not in self.get_metrics()
+            or self[statistical_metric] is None
+        ):
             return False
         else:
             return True
-
 
     def __str__(self):
         """
@@ -260,9 +269,10 @@ class DataFeature(collections.MutableMapping):
         """
         output_str = ""
         for statistical_metric in self:
-            output_str += "=== {statistical_metric} ===\n".format(statistical_metric=statistical_metric)
+            output_str += "=== {statistical_metric} ===\n".format(
+                statistical_metric=statistical_metric
+            )
             output_str += "{data}\n\n".format(data=self[statistical_metric])
-
 
         return output_str.strip()
 
@@ -367,18 +377,25 @@ class Data(collections.MutableMapping):
     --------
     uncertainpy.DataFeature
     """
-    def __init__(self,
-                 filename=None,
-                 backend="auto",
-                 logger_level="info"):
 
-        self.data_information = ["uncertain_parameters", "model_name",
-                                 "incomplete", "method", "version", "seed",
-                                 "model_ignore", "error"]
-
+    def __init__(self, filename=None, backend="auto", logger_level="info"):
+        self.data_information = [
+            "uncertain_parameters",
+            "model_name",
+            "incomplete",
+            "method",
+            "version",
+            "seed",
+            "model_ignore",
+            "error",
+        ]
 
         if backend not in ["auto", "hdf5", "exdir"]:
-            raise ValueError("backend {} not supported. Supported backends are: auto, hdf5, and exdir".format(backend))
+            raise ValueError(
+                "backend {} not supported. Supported backends are: auto, hdf5, and exdir".format(
+                    backend
+                )
+            )
 
         setup_module_logger(class_instance=self, level=logger_level)
 
@@ -396,7 +413,6 @@ class Data(collections.MutableMapping):
 
         if filename is not None:
             self.load(filename)
-
 
     @property
     def seed(self):
@@ -416,14 +432,12 @@ class Data(collections.MutableMapping):
         """
         return self._seed
 
-
     @seed.setter
     def seed(self, new_seed):
         if new_seed is None:
             self._seed = ""
         else:
             self._seed = new_seed
-
 
     def __str__(self):
         """
@@ -437,19 +451,22 @@ class Data(collections.MutableMapping):
 
         def border(msg):
             count = len(msg) + 6
-            line = "="*(count + 2)
+            line = "=" * (count + 2)
             string = """
 {line}
 |   {msg}   |
-{line}\n\n""".format(line=line, msg=msg)
+{line}\n\n""".format(
+                line=line, msg=msg
+            )
             return string
 
         output_str = border("Information")
 
         for info in self.data_information:
             current_info = getattr(self, info)
-            output_str += "{info}: {current_info}\n".format(info=info,
-                                                            current_info=current_info)
+            output_str += "{info}: {current_info}\n".format(
+                info=info, current_info=current_info
+            )
 
         for feature in self:
             output_str += border(feature)
@@ -458,8 +475,6 @@ class Data(collections.MutableMapping):
             output_str += str(self[feature]) + "\n"
 
         return output_str.strip()
-
-
 
     def clear(self):
         """
@@ -474,7 +489,6 @@ class Data(collections.MutableMapping):
         self._seed = ""
         self.model_ignore = False
         self.version = __version__
-
 
     def ndim(self, feature):
         """
@@ -492,8 +506,6 @@ class Data(collections.MutableMapping):
             if the feature has no evaluations or only contains nan.
         """
         return self[feature].ndim()
-
-
 
     def get_labels(self, feature):
         """
@@ -515,13 +527,14 @@ class Data(collections.MutableMapping):
         if self[feature].labels != []:
             return self[feature].labels
 
-        elif self[self.model_name].labels != [] and self[self.model_name].ndim() == self[feature].ndim():
+        elif (
+            self[self.model_name].labels != []
+            and self[self.model_name].ndim() == self[feature].ndim()
+        ):
             return self[self.model_name].labels
 
         else:
-            return [""]*(self[feature].ndim() + 1)
-
-
+            return [""] * (self[feature].ndim() + 1)
 
     def __getitem__(self, feature):
         """
@@ -559,7 +572,6 @@ class Data(collections.MutableMapping):
             raise ValueError("data must be of type DataFeature")
         self.data[feature] = data
 
-
     def __iter__(self):
         """
         Iterate over each feature/model that has not errored.
@@ -575,7 +587,6 @@ class Data(collections.MutableMapping):
 
         # return iter(self.data)
 
-
     def __delitem__(self, feature):
         """
         Delete data for `feature`.
@@ -587,7 +598,6 @@ class Data(collections.MutableMapping):
         """
         del self.data[feature]
 
-
     def __len__(self):
         """
         Get the number of model/features that have not errored.
@@ -598,7 +608,6 @@ class Data(collections.MutableMapping):
             The number of model/features that have not errored.
         """
         return len(self.data) - len(self.error)
-
 
     def add_features(self, features):
         """
@@ -614,7 +623,6 @@ class Data(collections.MutableMapping):
 
         for feature in features:
             self.data[feature] = DataFeature(feature)
-
 
     # TODO expand the save function to also save parameters and model information
     def save(self, filename):
@@ -641,11 +649,14 @@ class Data(collections.MutableMapping):
             elif filename.endswith(".exdir"):
                 current_backend = "exdir"
             else:
-                logger.warning("Unknown fileextension, defaulting to save {} as a HDF5 file.".format(filename))
+                logger.warning(
+                    "Unknown fileextension, defaulting to save {} as a HDF5 file.".format(
+                        filename
+                    )
+                )
                 current_backend = "hdf5"
         else:
             current_backend = self.backend
-
 
         if current_backend == "hdf5":
             try:
@@ -659,8 +670,6 @@ class Data(collections.MutableMapping):
             except ImportError:
                 raise ImportError("The Exdir backend requires: exdir")
 
-
-
         def add_group(group, values, name="evaluation"):
             iteration = 0
 
@@ -668,9 +677,13 @@ class Data(collections.MutableMapping):
 
             for value in values:
                 try:
-                    group.create_dataset(name + "_{0:0{1}d}".format(iteration, padding), data=value)
+                    group.create_dataset(
+                        name + "_{0:0{1}d}".format(iteration, padding), data=value
+                    )
                 except (TypeError, ValueError):
-                    new_group = group.create_group(name + "_{0:0{1}d}".format(iteration, padding))
+                    new_group = group.create_group(
+                        name + "_{0:0{1}d}".format(iteration, padding)
+                    )
 
                     if not name.startswith("sub_"):
                         new_name = "sub_" + name
@@ -679,20 +692,21 @@ class Data(collections.MutableMapping):
 
                 iteration += 1
 
-
-
         # with backend.File(filename, "w") as f:
         f = backend.File(filename, "w")
 
-        f.attrs["uncertain parameters"] =  [parameter.encode("utf8") for parameter in self.uncertain_parameters]
+        f.attrs["uncertain parameters"] = [
+            parameter.encode("utf8") for parameter in self.uncertain_parameters
+        ]
         f.attrs["model name"] = self.model_name
-        f.attrs["incomplete results"] =  [incomplete.encode("utf8") for incomplete in self.incomplete]
-        f.attrs["error"] =  [irregular.encode("utf8") for irregular in self.error]
+        f.attrs["incomplete results"] = [
+            incomplete.encode("utf8") for incomplete in self.incomplete
+        ]
+        f.attrs["error"] = [irregular.encode("utf8") for irregular in self.error]
         f.attrs["method"] = self.method
         f.attrs["version"] = self.version
         f.attrs["seed"] = self.seed
         f.attrs["model ignore"] = self.model_ignore
-
 
         for feature in self.data:
             group = f.create_group(feature)
@@ -700,17 +714,30 @@ class Data(collections.MutableMapping):
             for statistical_metric in self[feature]:
                 if statistical_metric in ["evaluations", "time"]:
                     if is_regular(self[feature][statistical_metric]):
-                        group.create_dataset(statistical_metric, data=self[feature][statistical_metric])
+                        group.create_dataset(
+                            statistical_metric,
+                            data=self[feature][statistical_metric],
+                        )
                     else:
                         evaluations_group = group.create_group(statistical_metric)
-                        add_group(evaluations_group, self[feature][statistical_metric], name=statistical_metric)
+                        add_group(
+                            evaluations_group,
+                            self[feature][statistical_metric],
+                            name=statistical_metric,
+                        )
                 else:
-                    group.create_dataset(statistical_metric, data=self[feature][statistical_metric])
+                    group.create_dataset(
+                        statistical_metric, data=self[feature][statistical_metric]
+                    )
 
-            group.create_dataset("labels", data=np.array([label.encode("utf8") for label in self[feature].labels]))
+            group.create_dataset(
+                "labels",
+                data=np.array(
+                    [label.encode("utf8") for label in self[feature].labels]
+                ),
+            )
 
         f.close()
-
 
     def load(self, filename):
         """
@@ -736,12 +763,15 @@ class Data(collections.MutableMapping):
             elif filename.endswith(".exdir"):
                 current_backend = "exdir"
             else:
-                logger.warning("Unknown fileextension, defaulting to load {} from a HDF5 file.".format(filename))
+                logger.warning(
+                    "Unknown fileextension, defaulting to load {} from a HDF5 file.".format(
+                        filename
+                    )
+                )
                 current_backend = "hdf5"
 
         else:
             current_backend = self.backend
-
 
         if current_backend == "hdf5":
             try:
@@ -755,7 +785,6 @@ class Data(collections.MutableMapping):
             except ImportError:
                 raise ImportError("The Exdir backend requires: exdir")
 
-
         # TODO add this check when changing to python 3
         # if not os.path.isfile(self.filename):
         #     raise FileNotFoundError("{} file not found".format(self.filename))
@@ -768,35 +797,46 @@ class Data(collections.MutableMapping):
                 if isinstance(value, backend.Dataset):
                     sub_evaluations.append(value[()])
 
-                elif  isinstance(value, backend.Group):
+                elif isinstance(value, backend.Group):
                     append_evaluations(sub_evaluations, group)
 
             evaluations.append(sub_evaluations)
-
 
         # with backend.File(filename, "r") as f:
         f = backend.File(filename, "r")
 
         if "uncertain parameters" in f.attrs:
             try:
-                self.uncertain_parameters = [parameter.decode("utf8") for parameter in f.attrs["uncertain parameters"]]
+                self.uncertain_parameters = [
+                    parameter.decode("utf8")
+                    for parameter in f.attrs["uncertain parameters"]
+                ]
             except (UnicodeDecodeError, AttributeError):
-                self.uncertain_parameters = [parameter for parameter in f.attrs["uncertain parameters"]]
+                self.uncertain_parameters = [
+                    parameter for parameter in f.attrs["uncertain parameters"]
+                ]
 
         if "model name" in f.attrs:
             self.model_name = str(f.attrs["model name"])
 
         if "incomplete results" in f.attrs:
             try:
-                self.incomplete = [incomplete.decode("utf8") for incomplete in f.attrs["incomplete results"]]
+                self.incomplete = [
+                    incomplete.decode("utf8")
+                    for incomplete in f.attrs["incomplete results"]
+                ]
             except (UnicodeDecodeError, AttributeError):
-                self.incomplete = [incomplete for incomplete in f.attrs["incomplete results"]]
+                self.incomplete = [
+                    incomplete for incomplete in f.attrs["incomplete results"]
+                ]
 
         if "error" in f.attrs:
             try:
-                self.error =  [irregular.decode("utf8") for irregular in f.attrs["error"]]
+                self.error = [
+                    irregular.decode("utf8") for irregular in f.attrs["error"]
+                ]
             except (UnicodeDecodeError, AttributeError):
-                self.error =  [irregular for irregular in f.attrs["error"]]
+                self.error = [irregular for irregular in f.attrs["error"]]
 
         if "method" in f.attrs:
             self.method = str(f.attrs["method"])
@@ -810,12 +850,9 @@ class Data(collections.MutableMapping):
         if "model ignore" in f.attrs:
             self.model_ignore = f.attrs["model ignore"]
 
-
         for feature in f:
             self.add_features(str(feature))
             for statistical_metric in f[feature]:
-
-
                 if statistical_metric in ["evaluations", "time"]:
                     values = f[feature][statistical_metric]
 
@@ -829,17 +866,21 @@ class Data(collections.MutableMapping):
 
                             if isinstance(value, backend.Dataset):
                                 evaluations.append(value[()])
-                            elif  isinstance(value, backend.Group):
+                            elif isinstance(value, backend.Group):
                                 append_evaluations(evaluations, value)
 
                     self[feature][statistical_metric] = evaluations
                 elif statistical_metric == "labels":
-                    self[feature][statistical_metric] = [label.decode("utf8") for label in f[feature][statistical_metric][()]]
+                    self[feature][statistical_metric] = [
+                        label.decode("utf8")
+                        for label in f[feature][statistical_metric][()]
+                    ]
                 else:
-                    self[feature][statistical_metric] = f[feature][statistical_metric][()]
+                    self[feature][statistical_metric] = f[feature][
+                        statistical_metric
+                    ][()]
 
         f.close()
-
 
     def remove_only_invalid_features(self):
         """
@@ -855,8 +896,9 @@ class Data(collections.MutableMapping):
 
             if all_nan:
                 logger = get_logger(self)
-                logger.warning("Feature: {} does".format(feature)
-                               + " not yield results for any parameter combinations")
+                logger.warning(
+                    "Feature: {} does".format(feature)
+                    + " not yield results for any parameter combinations"
+                )
 
                 del self[feature]
-

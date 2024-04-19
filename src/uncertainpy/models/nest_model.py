@@ -12,6 +12,7 @@ import numpy as np
 from .model import Model
 from ..utils.logger import setup_module_logger, get_logger
 
+
 class NestModel(Model):
     """
     Class for NEST simulator models.
@@ -66,26 +67,28 @@ class NestModel(Model):
     --------
     uncertainpy.models.NestModel.run
     """
-    def __init__(self,
-                 run=None,
-                 interpolate=False,
-                 ignore=False,
-                 labels=["Time (ms)", "Neuron nr", "Spiking probability"],
-                 logger_level="info",
-                 **model_kwargs):
 
-
+    def __init__(
+        self,
+        run=None,
+        interpolate=False,
+        ignore=False,
+        labels=["Time (ms)", "Neuron nr", "Spiking probability"],
+        logger_level="info",
+        **model_kwargs
+    ):
         if not prerequisites:
             raise ImportError("NestModel requires: nest")
 
-        super(NestModel, self).__init__(run=run,
-                                        interpolate=interpolate,
-                                        ignore=ignore,
-                                        labels=labels,
-                                        **model_kwargs)
+        super(NestModel, self).__init__(
+            run=run,
+            interpolate=interpolate,
+            ignore=ignore,
+            labels=labels,
+            **model_kwargs
+        )
 
         setup_module_logger(class_instance=self, level=logger_level)
-
 
     @Model.run.getter
     def run(self):
@@ -145,7 +148,6 @@ class NestModel(Model):
         uncertainpy.model.Model.postprocess
         """
         return self._run
-
 
     def postprocess(self, simulation_end, spiketrains):
         """

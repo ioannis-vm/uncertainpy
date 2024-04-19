@@ -5,6 +5,7 @@ import numpy as np
 
 from ..utils.logger import setup_module_logger, get_logger
 
+
 class Model(object):
     """
     Class for storing the model to perform uncertainty quantification and
@@ -71,16 +72,18 @@ class Model(object):
     uncertainpy.models.Model.run
     uncertainpy.models.Model.postprocess
     """
-    def __init__(self,
-                 run=None,
-                 interpolate=False,
-                 labels=[],
-                 postprocess=None,
-                 ignore=False,
-                 suppress_graphics=False,
-                 logger_level="info",
-                 **model_kwargs):
 
+    def __init__(
+        self,
+        run=None,
+        interpolate=False,
+        labels=[],
+        postprocess=None,
+        ignore=False,
+        suppress_graphics=False,
+        logger_level="info",
+        **model_kwargs
+    ):
         self.interpolate = interpolate
         self.labels = labels
         self.ignore = ignore
@@ -97,7 +100,6 @@ class Model(object):
 
         if postprocess is not None:
             self.postprocess = postprocess
-
 
     @property
     def run(self):
@@ -205,7 +207,6 @@ class Model(object):
         """
         return self._run
 
-
     @run.setter
     def run(self, new_run):
         if not callable(new_run):
@@ -214,10 +215,12 @@ class Model(object):
         self._run = new_run
         self.name = new_run.__name__
 
-
     def _run(self, **parameters):
-        raise NotImplementedError("No run method implemented or set in {class_name}".format(class_name=__name__))
-
+        raise NotImplementedError(
+            "No run method implemented or set in {class_name}".format(
+                class_name=__name__
+            )
+        )
 
     def evaluate(self, **parameters):
         """
@@ -343,10 +346,8 @@ class Model(object):
         """
         return self._postprocess
 
-
     def _postprocess(self, *model_result):
         return model_result[:2]
-
 
     @postprocess.setter
     def postprocess(self, new_postprocess_function):
@@ -354,7 +355,6 @@ class Model(object):
             raise TypeError("postprocess function must be callable")
 
         self._postprocess = new_postprocess_function
-
 
     def validate_run(self, model_result):
         """
@@ -398,18 +398,22 @@ class Model(object):
         uncertainpy.models.Model.run
         """
         if isinstance(model_result, np.ndarray):
-            raise ValueError("model.run() returns an numpy array. "
-                             "This indicates only time or values is returned. "
-                             "model.run() or model function must return "
-                             "time and values "
-                             "(return time, values | return None, values)")
+            raise ValueError(
+                "model.run() returns an numpy array. "
+                "This indicates only time or values is returned. "
+                "model.run() or model function must return "
+                "time and values "
+                "(return time, values | return None, values)"
+            )
 
         if isinstance(model_result, six.string_types):
-            raise ValueError("model.run() returns an string. "
-                             "This indicates only time or values is returned. "
-                             "model.run() or model function must return "
-                             "time and values "
-                             " (return time, values | return None, values)")
+            raise ValueError(
+                "model.run() returns an string. "
+                "This indicates only time or values is returned. "
+                "model.run() or model function must return "
+                "time and values "
+                " (return time, values | return None, values)"
+            )
 
         try:
             time, values = model_result[:2]
@@ -419,8 +423,6 @@ class Model(object):
                 error.args = ("",)
             error.args = error.args + (msg,)
             raise
-
-
 
     def validate_postprocess(self, postprocess_result):
         """
@@ -463,18 +465,22 @@ class Model(object):
         uncertainpy.models.Model.postprocess
         """
         if isinstance(postprocess_result, np.ndarray):
-            raise ValueError("model.postprocess() returns an numpy array. "
-                             "This indicates only time or values is returned. "
-                             "model.postprocess() or model function must return "
-                             "time and values "
-                             "(return time, values | return None, values)")
+            raise ValueError(
+                "model.postprocess() returns an numpy array. "
+                "This indicates only time or values is returned. "
+                "model.postprocess() or model function must return "
+                "time and values "
+                "(return time, values | return None, values)"
+            )
 
         if isinstance(postprocess_result, six.string_types):
-            raise ValueError("model.postprocess() returns an string. "
-                             "This indicates only time or values is returned. "
-                             "model.postprocess() or model function must return "
-                             "time and values "
-                             " (return time, values | return None, values)")
+            raise ValueError(
+                "model.postprocess() returns an string. "
+                "This indicates only time or values is returned. "
+                "model.postprocess() or model function must return "
+                "time and values "
+                " (return time, values | return None, values)"
+            )
             try:
                 time_postprocess, values_postprocess = postprocess_result
             except (ValueError, TypeError) as error:
@@ -483,8 +489,6 @@ class Model(object):
                     error.args = ("",)
                 error.args = error.args + (msg,)
                 raise
-
-
 
     def set_parameters(self, **parameters):
         """
